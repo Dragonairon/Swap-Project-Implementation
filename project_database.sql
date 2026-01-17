@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 14, 2026 at 06:17 PM
+-- Generation Time: Jan 17, 2026 at 10:07 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -20,6 +20,143 @@ SET time_zone = "+00:00";
 --
 -- Database: `project_database`
 --
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `hr_actions`
+--
+
+CREATE TABLE `hr_actions` (
+  `action_id` int(11) NOT NULL,
+  `hr_user_id` int(11) NOT NULL,
+  `record_type` enum('leave','mc') NOT NULL,
+  `record_id` int(11) NOT NULL,
+  `action_taken` enum('approve','reject','edit','delete') NOT NULL,
+  `hr_comments` text DEFAULT NULL,
+  `action_timestamp` timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
+  `previous_status` enum('unapproved','approved','rejected') NOT NULL,
+  `new_status` enum('approved','rejected','unapproved') NOT NULL,
+  `user_agent` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `hr_actions`
+--
+
+INSERT INTO `hr_actions` (`action_id`, `hr_user_id`, `record_type`, `record_id`, `action_taken`, `hr_comments`, `action_timestamp`, `previous_status`, `new_status`, `user_agent`) VALUES
+(1, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:12:35', 'unapproved', 'approved', 1),
+(4, 2, 'mc', 1, 'reject', '0', '2026-01-17 20:26:01', 'unapproved', 'rejected', 1),
+(5, 2, 'mc', 1, 'approve', '0', '2026-01-17 20:28:50', 'unapproved', 'approved', 1),
+(6, 2, 'mc', 1, 'approve', '0', '2026-01-17 20:28:59', 'unapproved', 'approved', 1),
+(7, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:29:12', 'unapproved', 'approved', 1),
+(8, 2, 'mc', 1, 'approve', '0', '2026-01-17 20:30:35', 'rejected', 'approved', 1),
+(9, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:30:40', 'approved', '', 1),
+(10, 2, 'mc', 1, 'approve', '0', '2026-01-17 20:30:47', 'approved', '', 1),
+(11, 2, 'mc', 1, 'reject', '0', '2026-01-17 20:31:01', 'unapproved', 'rejected', 1),
+(12, 2, 'leave', 1, 'reject', '0', '2026-01-17 20:31:04', 'unapproved', 'rejected', 1),
+(13, 2, 'mc', 1, 'approve', '0', '2026-01-17 20:31:13', 'rejected', '', 1),
+(14, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:31:23', 'rejected', 'approved', 1),
+(15, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:31:28', 'approved', 'rejected', 1),
+(16, 2, 'mc', 1, 'reject', '0', '2026-01-17 20:34:22', 'unapproved', 'rejected', 1),
+(17, 2, 'mc', 1, 'approve', '0', '2026-01-17 20:34:26', 'rejected', 'unapproved', 1),
+(18, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:34:32', 'rejected', 'approved', 1),
+(19, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:34:35', 'approved', 'unapproved', 1),
+(20, 2, 'mc', 1, 'approve', '0', '2026-01-17 20:35:05', 'unapproved', 'approved', 1),
+(21, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:35:42', 'unapproved', 'approved', 1),
+(22, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:35:51', 'approved', 'unapproved', 1),
+(23, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:35:54', 'unapproved', 'approved', 1),
+(24, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:36:04', 'approved', 'approved', 1),
+(25, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:36:54', 'approved', 'approved', 1),
+(26, 2, 'mc', 1, 'approve', '0', '2026-01-17 20:39:18', 'unapproved', 'approved', 1),
+(27, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:39:26', 'approved', 'approved', 1),
+(28, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:39:30', 'approved', 'unapproved', 1),
+(29, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:39:33', 'unapproved', 'approved', 1),
+(30, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:39:42', 'approved', 'unapproved', 1),
+(31, 2, 'leave', 1, 'reject', '0', '2026-01-17 20:39:55', 'unapproved', 'rejected', 1),
+(32, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:42:05', 'rejected', 'rejected', 1),
+(33, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:42:10', 'rejected', 'unapproved', 1),
+(34, 2, 'leave', 1, 'reject', '0', '2026-01-17 20:42:14', 'unapproved', 'rejected', 1),
+(35, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:42:19', 'rejected', 'rejected', 1),
+(36, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:42:22', 'rejected', 'unapproved', 1),
+(37, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:42:26', 'unapproved', 'approved', 1),
+(38, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:42:44', 'approved', 'unapproved', 1),
+(39, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:42:47', 'unapproved', 'approved', 1),
+(40, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:44:08', 'approved', 'unapproved', 1),
+(41, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:44:11', 'unapproved', 'approved', 1),
+(42, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:44:15', 'approved', 'unapproved', 1),
+(43, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:44:16', 'unapproved', 'approved', 1),
+(44, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:44:24', 'approved', 'rejected', 1),
+(45, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:44:28', 'rejected', 'unapproved', 1),
+(46, 2, 'leave', 1, 'reject', '0', '2026-01-17 20:44:32', 'unapproved', 'rejected', 1),
+(47, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:44:39', 'rejected', 'unapproved', 1),
+(48, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:44:42', 'unapproved', 'approved', 1),
+(49, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:44:48', 'approved', 'unapproved', 1),
+(50, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:44:54', 'unapproved', 'approved', 1),
+(51, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:44:59', 'approved', 'rejected', 1),
+(52, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:45:08', 'rejected', 'unapproved', 1),
+(53, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:45:11', 'unapproved', 'approved', 1),
+(54, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:46:04', 'approved', 'unapproved', 1),
+(55, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:46:06', 'unapproved', 'approved', 1),
+(56, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:46:12', 'approved', 'rejected', 1),
+(57, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:46:18', 'rejected', 'approved', 1),
+(58, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:46:23', 'approved', 'unapproved', 1),
+(59, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:46:25', 'unapproved', 'approved', 1),
+(60, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:46:30', 'approved', 'unapproved', 1),
+(61, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:46:32', 'unapproved', 'approved', 1),
+(62, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:46:35', 'approved', 'unapproved', 1),
+(63, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:46:37', 'unapproved', 'approved', 1),
+(64, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:48:05', 'approved', 'approved', 1),
+(65, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:49:18', 'approved', 'approved', 1),
+(66, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:49:25', 'approved', 'unapproved', 1),
+(67, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:49:29', 'unapproved', 'approved', 1),
+(68, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:49:33', 'unapproved', 'approved', 1),
+(69, 2, 'mc', 1, 'approve', NULL, '2026-01-17 20:50:59', 'unapproved', 'approved', 1),
+(70, 2, 'mc', 1, 'approve', NULL, '2026-01-17 20:51:00', 'approved', 'approved', 1),
+(71, 2, 'mc', 1, 'approve', '0', '2026-01-17 20:51:12', 'approved', 'unapproved', 1),
+(72, 2, 'mc', 1, 'approve', NULL, '2026-01-17 20:51:15', 'unapproved', 'approved', 1),
+(73, 2, 'mc', 1, 'approve', '0', '2026-01-17 20:51:19', 'approved', 'unapproved', 1),
+(74, 2, 'mc', 1, 'reject', NULL, '2026-01-17 20:51:22', 'unapproved', 'rejected', 1),
+(75, 2, 'mc', 1, 'edit', '0', '2026-01-17 20:56:33', 'rejected', 'approved', 1),
+(76, 2, 'mc', 1, 'edit', '0', '2026-01-17 20:56:40', 'approved', 'unapproved', 1),
+(77, 2, 'mc', 1, 'approve', NULL, '2026-01-17 20:56:47', 'unapproved', 'approved', 1),
+(78, 2, 'mc', 1, 'delete', '0', '2026-01-17 20:56:52', 'unapproved', 'approved', 1),
+(79, 2, 'mc', 1, 'delete', '0', '2026-01-17 20:59:10', 'unapproved', 'approved', 1),
+(80, 2, 'leave', 1, 'approve', '0', '2026-01-17 20:59:12', 'unapproved', 'approved', 1),
+(81, 2, 'leave', 1, 'edit', '0', '2026-01-17 20:59:19', 'approved', 'rejected', 1),
+(82, 2, 'leave', 1, 'edit', '0', '2026-01-17 21:00:24', 'rejected', 'approved', 1),
+(83, 2, 'leave', 1, 'delete', '0', '2026-01-17 21:00:27', 'unapproved', 'approved', 1),
+(84, 2, 'mc', 1, 'approve', NULL, '2026-01-17 21:01:01', 'unapproved', 'approved', 1),
+(85, 2, 'mc', 1, 'edit', '0', '2026-01-17 21:01:05', 'approved', 'unapproved', 1),
+(86, 2, 'mc', 1, 'approve', NULL, '2026-01-17 21:02:39', 'unapproved', 'approved', 1),
+(87, 2, 'mc', 1, 'edit', '0', '2026-01-17 21:02:48', 'approved', 'rejected', 1),
+(88, 2, 'mc', 1, 'edit', '0', '2026-01-17 21:02:51', 'rejected', 'unapproved', 1),
+(89, 2, 'mc', 1, 'approve', NULL, '2026-01-17 21:02:54', 'unapproved', 'approved', 1),
+(90, 2, 'mc', 1, 'delete', '0', '2026-01-17 21:02:58', 'unapproved', 'approved', 1),
+(91, 2, 'mc', 1, 'delete', '0', '2026-01-17 21:03:53', 'unapproved', 'approved', 1),
+(92, 2, 'mc', 1, 'delete', '0', '2026-01-17 21:04:07', 'unapproved', 'approved', 1),
+(93, 2, 'mc', 1111, 'approve', NULL, '2026-01-17 21:05:53', 'unapproved', 'approved', 1),
+(94, 2, 'mc', 1111, 'edit', '0', '2026-01-17 21:06:32', 'approved', 'unapproved', 1),
+(95, 2, 'mc', 1111, 'approve', NULL, '2026-01-17 21:06:35', 'unapproved', 'approved', 1),
+(96, 2, 'mc', 1111, 'delete', '0', '2026-01-17 21:06:38', 'unapproved', 'approved', 1);
+
+-- --------------------------------------------------------
+
+--
+-- Table structure for table `leave_requests`
+--
+
+CREATE TABLE `leave_requests` (
+  `leave_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `leave_type` int(11) NOT NULL,
+  `start_date` int(11) NOT NULL,
+  `end_date` int(11) NOT NULL,
+  `reason` text DEFAULT NULL,
+  `status` enum('approved','rejected','unapproved') NOT NULL DEFAULT 'unapproved',
+  `submitted_at` int(11) NOT NULL,
+  `approved_at` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 -- --------------------------------------------------------
 
@@ -68,6 +205,25 @@ INSERT INTO `login_attempts` (`attempt_id`, `user_id`, `username_entered`, `succ
 -- --------------------------------------------------------
 
 --
+-- Table structure for table `mc_records`
+--
+
+CREATE TABLE `mc_records` (
+  `mc_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `clinic_name` int(11) NOT NULL,
+  `start_date` int(11) NOT NULL,
+  `end_date` int(11) NOT NULL,
+  `mc_file_path` int(11) NOT NULL,
+  `mime_type` int(11) NOT NULL,
+  `verification_status` enum('approved','rejected','unapproved') NOT NULL DEFAULT 'unapproved',
+  `submitted_at` int(11) NOT NULL,
+  `verified_at` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- --------------------------------------------------------
+
+--
 -- Table structure for table `users`
 --
 
@@ -95,6 +251,19 @@ INSERT INTO `users` (`user_id`, `username`, `password_hash`, `email`, `role`, `s
 --
 
 --
+-- Indexes for table `hr_actions`
+--
+ALTER TABLE `hr_actions`
+  ADD PRIMARY KEY (`action_id`),
+  ADD KEY `user_agent` (`user_agent`);
+
+--
+-- Indexes for table `leave_requests`
+--
+ALTER TABLE `leave_requests`
+  ADD PRIMARY KEY (`leave_id`);
+
+--
 -- Indexes for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
@@ -102,6 +271,12 @@ ALTER TABLE `login_attempts`
   ADD KEY `idx_login_attempts_user_id` (`user_id`),
   ADD KEY `idx_login_attempts_username` (`username_entered`),
   ADD KEY `idx_login_attempts_attempt_time` (`attempt_time`);
+
+--
+-- Indexes for table `mc_records`
+--
+ALTER TABLE `mc_records`
+  ADD PRIMARY KEY (`mc_id`);
 
 --
 -- Indexes for table `users`
@@ -116,6 +291,18 @@ ALTER TABLE `users`
 --
 
 --
+-- AUTO_INCREMENT for table `hr_actions`
+--
+ALTER TABLE `hr_actions`
+  MODIFY `action_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
+
+--
+-- AUTO_INCREMENT for table `leave_requests`
+--
+ALTER TABLE `leave_requests`
+  MODIFY `leave_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+
+--
 -- AUTO_INCREMENT for table `login_attempts`
 --
 ALTER TABLE `login_attempts`
@@ -126,6 +313,16 @@ ALTER TABLE `login_attempts`
 --
 ALTER TABLE `users`
   MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+
+--
+-- Constraints for dumped tables
+--
+
+--
+-- Constraints for table `hr_actions`
+--
+ALTER TABLE `hr_actions`
+  ADD CONSTRAINT `fk_user_id` FOREIGN KEY (`user_agent`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
