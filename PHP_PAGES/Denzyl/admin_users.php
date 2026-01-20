@@ -625,6 +625,15 @@ $conn->close();
                 <?php endif; ?>
             </div>
         </div>
+
+        <div class="card">
+            <div class="card-title">Security Monitoring</div>
+            <div class="card-subtitle">View logs and manage locked accounts (Admin unlock).</div>
+            <div class="actions-row" style="margin-top: 18px;">
+                <a href="#"><button type="button" class="btn btn-primary">View Logs</button></a>
+                <a href="#"><button type="button" class="btn btn-primary">Locked Accounts</button></a>
+            </div>
+        </div>
     </div>
 
     <?php if ($action === 'delete_confirm' && $current_user): ?>
