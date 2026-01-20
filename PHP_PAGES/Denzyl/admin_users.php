@@ -12,7 +12,7 @@ $conn = new mysqli($db_host, $db_user, $db_password, $db_name);
 
 // Check connection
 if ($conn->connect_error) {
-    die("Connection failed: " . $conn->connect_error);
+    die('Connection failed: ' . $conn->connect_error);
 }
 
 // Initialize variables
@@ -82,11 +82,11 @@ function handleCreateUser($conn, $data) {
     }
 
     // Check if username already exists
-    $check_sql = "SELECT user_id FROM users WHERE username = ?";
+    $check_sql = 'SELECT user_id FROM users WHERE username = ?';
     $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("s", $username);
+    $check_stmt->bind_param('s', $username);
     $check_stmt->execute();
-    
+
     if ($check_stmt->get_result()->num_rows > 0) {
         $message = 'Username already exists.';
         $message_type = 'error';
@@ -94,11 +94,11 @@ function handleCreateUser($conn, $data) {
     }
 
     // Check if email already exists
-    $check_sql = "SELECT user_id FROM users WHERE email = ?";
+    $check_sql = 'SELECT user_id FROM users WHERE email = ?';
     $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("s", $email);
+    $check_stmt->bind_param('s', $email);
     $check_stmt->execute();
-    
+
     if ($check_stmt->get_result()->num_rows > 0) {
         $message = 'Email already exists.';
         $message_type = 'error';
@@ -109,9 +109,9 @@ function handleCreateUser($conn, $data) {
     $password_hash = password_hash($password, PASSWORD_BCRYPT);
 
     // Insert user
-    $sql = "INSERT INTO users (username, password_hash, email, role, status) VALUES (?, ?, ?, ?, ?)";
+    $sql = 'INSERT INTO users (username, password_hash, email, role, status) VALUES (?, ?, ?, ?, ?)';
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("sssss", $username, $password_hash, $email, $role, $status);
+    $stmt->bind_param('sssss', $username, $password_hash, $email, $role, $status);
 
     if ($stmt->execute()) {
         $message = 'User created successfully.';
@@ -148,11 +148,11 @@ function handleUpdateUser($conn, $data) {
     }
 
     // Check if username already exists (excluding current user)
-    $check_sql = "SELECT user_id FROM users WHERE username = ? AND user_id != ?";
+    $check_sql = 'SELECT user_id FROM users WHERE username = ? AND user_id != ?';
     $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("si", $username, $user_id);
+    $check_stmt->bind_param('si', $username, $user_id);
     $check_stmt->execute();
-    
+
     if ($check_stmt->get_result()->num_rows > 0) {
         $message = 'Username already exists.';
         $message_type = 'error';
@@ -160,11 +160,11 @@ function handleUpdateUser($conn, $data) {
     }
 
     // Check if email already exists (excluding current user)
-    $check_sql = "SELECT user_id FROM users WHERE email = ? AND user_id != ?";
+    $check_sql = 'SELECT user_id FROM users WHERE email = ? AND user_id != ?';
     $check_stmt = $conn->prepare($check_sql);
-    $check_stmt->bind_param("si", $email, $user_id);
+    $check_stmt->bind_param('si', $email, $user_id);
     $check_stmt->execute();
-    
+
     if ($check_stmt->get_result()->num_rows > 0) {
         $message = 'Email already exists.';
         $message_type = 'error';
@@ -172,9 +172,9 @@ function handleUpdateUser($conn, $data) {
     }
 
     // Update user
-    $sql = "UPDATE users SET username = ?, email = ?, role = ?, status = ? WHERE user_id = ?";
+    $sql = 'UPDATE users SET username = ?, email = ?, role = ?, status = ? WHERE user_id = ?';
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("ssssi", $username, $email, $role, $status, $user_id);
+    $stmt->bind_param('ssssi', $username, $email, $role, $status, $user_id);
 
     if ($stmt->execute()) {
         $message = 'User updated successfully.';
@@ -193,9 +193,9 @@ function handleDeleteUser($conn, $data) {
 
     $user_id = intval($data['user_id']);
 
-    $sql = "DELETE FROM users WHERE user_id = ?";
+    $sql = 'DELETE FROM users WHERE user_id = ?';
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $user_id);
+    $stmt->bind_param('i', $user_id);
 
     if ($stmt->execute()) {
         $message = 'User deleted successfully.';
@@ -210,9 +210,9 @@ function handleDeleteUser($conn, $data) {
  * Get user by ID
  */
 function getUserById($conn, $user_id) {
-    $sql = "SELECT * FROM users WHERE user_id = ?";
+    $sql = 'SELECT * FROM users WHERE user_id = ?';
     $stmt = $conn->prepare($sql);
-    $stmt->bind_param("i", $user_id);
+    $stmt->bind_param('i', $user_id);
     $stmt->execute();
     $result = $stmt->get_result();
 
@@ -227,20 +227,20 @@ function getUserById($conn, $user_id) {
  */
 function searchUsers($conn, $query) {
     $users = [];
-    
+
     if (empty($query)) {
-        $sql = "SELECT user_id, username, email, role, status, created_at, updated_at FROM users ORDER BY created_at DESC";
+        $sql = 'SELECT user_id, username, email, role, status, created_at, updated_at FROM users ORDER BY created_at DESC';
         $result = $conn->query($sql);
     } else {
-        $search_term = "%" . $query . "%";
-        $sql = "SELECT user_id, username, email, role, status, created_at, updated_at FROM users WHERE username LIKE ? OR email LIKE ? ORDER BY created_at DESC";
+        $search_term = '%' . $query . '%';
+        $sql = 'SELECT user_id, username, email, role, status, created_at, updated_at FROM users WHERE username LIKE ? OR email LIKE ? ORDER BY created_at DESC';
         $stmt = $conn->prepare($sql);
-        $stmt->bind_param("ss", $search_term, $search_term);
+        $stmt->bind_param('ss', $search_term, $search_term);
         $stmt->execute();
         $result = $stmt->get_result();
     }
 
-    if ($result->num_rows > 0) {
+    if ($result && $result->num_rows > 0) {
         while ($row = $result->fetch_assoc()) {
             $users[] = $row;
         }
@@ -257,389 +257,249 @@ $conn->close();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Admin User Management System</title>
+    <title>Admin User Management</title>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
+        :root {
+            --bg: #f5f6fb;
+            --card: #ffffff;
+            --primary: #d61f3e;
+            --primary-strong: #b91832;
+            --muted: #6b7280;
+            --border: #e5e7eb;
+            --shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
+            --radius: 18px;
         }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: var(--bg);
+            color: #111827;
             min-height: 100vh;
-            padding: 20px;
+            padding: 32px;
         }
 
-        .container {
+        a { text-decoration: none; color: inherit; }
+
+        .shell {
             max-width: 1200px;
             margin: 0 auto;
-            background-color: white;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.2);
-            padding: 30px;
-        }
-
-        header {
-            margin-bottom: 30px;
-            border-bottom: 3px solid #667eea;
-            padding-bottom: 20px;
-        }
-
-        h1 {
-            color: #333;
-            font-size: 2.5em;
-            margin-bottom: 10px;
-        }
-
-        .header-subtitle {
-            color: #666;
-            font-size: 1em;
-        }
-
-        .alert {
-            padding: 15px 20px;
-            border-radius: 5px;
-            margin-bottom: 20px;
-            font-weight: 500;
-        }
-
-        .alert-success {
-            background-color: #d4edda;
-            color: #155724;
-            border: 1px solid #c3e6cb;
-        }
-
-        .alert-error {
-            background-color: #f8d7da;
-            color: #721c24;
-            border: 1px solid #f5c6cb;
-        }
-
-        .section {
-            margin-bottom: 40px;
-        }
-
-        .section-title {
-            font-size: 1.5em;
-            color: #333;
-            margin-bottom: 20px;
             display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-
-        .section-title::before {
-            content: '';
-            width: 5px;
-            height: 25px;
-            background-color: #667eea;
-            border-radius: 3px;
-        }
-
-        .form-group {
-            margin-bottom: 15px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: #333;
-            font-weight: 600;
-        }
-
-        input[type="text"],
-        input[type="email"],
-        input[type="password"],
-        select {
-            width: 100%;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 1em;
-            transition: border-color 0.3s;
-        }
-
-        input[type="text"]:focus,
-        input[type="email"]:focus,
-        input[type="password"]:focus,
-        select:focus {
-            outline: none;
-            border-color: #667eea;
-            background-color: #f8f9ff;
-        }
-
-        .form-row {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+            flex-direction: column;
             gap: 20px;
         }
 
-        .form-row.full {
-            grid-template-columns: 1fr;
-        }
-
-        button {
-            padding: 12px 25px;
-            border: none;
-            border-radius: 5px;
-            font-size: 1em;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.3s;
-            margin-right: 10px;
-            margin-bottom: 10px;
-        }
-
-        .btn-primary {
-            background-color: #667eea;
-            color: white;
-        }
-
-        .btn-primary:hover {
-            background-color: #5568d3;
-            transform: translateY(-2px);
-            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.4);
-        }
-
-        .btn-success {
-            background-color: #28a745;
-            color: white;
-        }
-
-        .btn-success:hover {
-            background-color: #218838;
-        }
-
-        .btn-danger {
-            background-color: #dc3545;
-            color: white;
-        }
-
-        .btn-danger:hover {
-            background-color: #c82333;
-        }
-
-        .btn-secondary {
-            background-color: #6c757d;
-            color: white;
-        }
-
-        .btn-secondary:hover {
-            background-color: #5a6268;
-        }
-
-        .btn-warning {
-            background-color: #ffc107;
-            color: #333;
-        }
-
-        .btn-warning:hover {
-            background-color: #e0a800;
-        }
-
-        .search-box {
+        .topbar {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 16px 22px;
             display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 16px;
+        }
+
+        .brand {
+            display: flex;
+            align-items: center;
             gap: 10px;
-            margin-bottom: 20px;
+            font-weight: 700;
+            color: #1f2937;
+            letter-spacing: 0.2px;
         }
 
-        .search-box input {
-            flex: 1;
-            padding: 12px;
-            border: 2px solid #ddd;
-            border-radius: 5px;
-            font-size: 1em;
+        .brand-badge {
+            width: 42px;
+            height: 42px;
+            border-radius: 14px;
+            background: var(--primary);
+            display: grid;
+            place-items: center;
+            color: #fff;
+            font-weight: 800;
+            box-shadow: 0 8px 20px rgba(214, 31, 62, 0.35);
         }
 
-        .search-box button {
-            margin-right: 0;
+        .nav-links {
+            display: flex;
+            gap: 18px;
+            align-items: center;
+            font-weight: 600;
+            color: #374151;
         }
 
-        table {
+        .nav-links a:hover { color: var(--primary); }
+
+        .logout {
+            padding: 10px 16px;
+            border-radius: 12px;
+            border: 1px solid var(--primary);
+            color: var(--primary);
+            font-weight: 700;
+            background: #fff;
+            transition: all 0.2s ease;
+        }
+
+        .logout:hover {
+            background: var(--primary);
+            color: #fff;
+            box-shadow: 0 8px 20px rgba(214, 31, 62, 0.25);
+        }
+
+        .hero {
+            background: linear-gradient(135deg, #ffe9ed, #fef6f8);
+            border: 1px solid #ffe0e6;
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 26px;
+        }
+
+        .hero h1 { font-size: 32px; margin-bottom: 6px; color: #111827; }
+        .hero p { color: var(--muted); font-weight: 600; }
+
+        .grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; }
+
+        .card {
+            background: var(--card);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            padding: 22px;
+        }
+
+        .card-title { font-size: 20px; color: #111827; margin-bottom: 8px; display: flex; gap: 10px; align-items: center; }
+        .card-subtitle { color: var(--muted); margin-bottom: 18px; }
+
+        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-weight: 700; color: #1f2937; }
+
+        input[type='text'], input[type='email'], input[type='password'], select {
             width: 100%;
-            border-collapse: collapse;
-            margin-top: 20px;
+            padding: 12px 12px;
+            border-radius: 12px;
+            border: 1px solid var(--border);
+            background: #f9fafb;
+            font-size: 15px;
+            transition: border-color 0.15s ease, background 0.15s ease;
         }
 
-        table thead {
-            background-color: #667eea;
-            color: white;
+        input:focus, select:focus {
+            outline: none;
+            border-color: var(--primary);
+            background: #fff;
+            box-shadow: 0 0 0 3px rgba(214, 31, 62, 0.12);
         }
 
-        table th {
-            padding: 15px;
-            text-align: left;
-            font-weight: 600;
+        .actions-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
+
+        .btn {
+            padding: 12px 18px;
+            border: none;
+            border-radius: 12px;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s ease;
         }
 
-        table td {
-            padding: 15px;
-            border-bottom: 1px solid #ddd;
+        .btn-primary { background: var(--primary); color: #fff; }
+        .btn-primary:hover { background: var(--primary-strong); box-shadow: 0 10px 22px rgba(214, 31, 62, 0.18); transform: translateY(-1px); }
+        .btn-secondary { background: #f3f4f6; color: #111827; border: 1px solid var(--border); }
+        .btn-danger { background: #dc2626; color: #fff; }
+
+        .search-box { display: flex; gap: 10px; align-items: center; }
+        .search-box input { flex: 1; background: #f9fafb; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 18px; }
+        table thead { background: #f9fafb; border: 1px solid var(--border); }
+        table th { text-align: left; padding: 12px 12px; font-size: 13px; color: #4b5563; }
+        table td { padding: 14px 12px; border-bottom: 1px solid var(--border); font-size: 15px; }
+        table tbody tr:hover { background: #fdf2f4; }
+
+        .badge { display: inline-flex; padding: 6px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; }
+        .role-admin { background: rgba(214, 31, 62, 0.12); color: var(--primary); }
+        .role-manager { background: rgba(252, 211, 77, 0.3); color: #92400e; }
+        .role-employee { background: rgba(59, 130, 246, 0.15); color: #1d4ed8; }
+        .role-hr { background: rgba(99, 102, 241, 0.18); color: #4338ca; }
+
+        .status-active { color: #16a34a; font-weight: 700; }
+        .status-inactive { color: #d97706; font-weight: 700; }
+        .status-suspended { color: #dc2626; font-weight: 700; }
+
+        .empty {
+            padding: 28px;
+            text-align: center;
+            color: var(--muted);
+            background: #f9fafb;
+            border: 1px dashed var(--border);
+            border-radius: 12px;
         }
 
-        table tbody tr:hover {
-            background-color: #f8f9ff;
-            transition: background-color 0.3s;
-        }
-
-        .status-active {
-            color: #28a745;
-            font-weight: 600;
-        }
-
-        .status-inactive {
-            color: #ffc107;
-            font-weight: 600;
-        }
-
-        .status-suspended {
-            color: #dc3545;
-            font-weight: 600;
-        }
-
-        .role-badge {
-            display: inline-block;
-            padding: 5px 10px;
-            border-radius: 20px;
-            font-size: 0.85em;
-            font-weight: 600;
-            text-transform: capitalize;
-        }
-
-        .role-admin {
-            background-color: #667eea;
-            color: white;
-        }
-
-        .role-manager {
-            background-color: #ffc107;
-            color: #333;
-        }
-
-        .role-employee {
-            background-color: #17a2b8;
-            color: white;
-        }
-
-        .role-hr {
-            background-color: #6f42c1;
-            color: white;
-        }
-
-        .actions {
-            display: flex;
-            gap: 10px;
-            flex-wrap: wrap;
-        }
-
-        .actions button {
-            padding: 8px 15px;
-            font-size: 0.9em;
-            margin: 0;
-        }
+        .alert { padding: 14px 16px; border-radius: 12px; margin-bottom: 12px; font-weight: 700; }
+        .alert-success { background: #ecfdf3; color: #166534; border: 1px solid #bbf7d0; }
+        .alert-error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
 
         .modal {
             display: none;
             position: fixed;
-            z-index: 1000;
-            left: 0;
-            top: 0;
-            width: 100%;
-            height: 100%;
-            background-color: rgba(0, 0, 0, 0.5);
-        }
-
-        .modal.show {
-            display: flex;
+            inset: 0;
+            background: rgba(0, 0, 0, 0.4);
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
-
+        .modal.show { display: flex; }
         .modal-content {
-            background-color: white;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
-            width: 90%;
-            max-width: 500px;
-            max-height: 80vh;
-            overflow-y: auto;
+            background: #fff;
+            border-radius: var(--radius);
+            padding: 22px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 460px;
+            border: 1px solid var(--border);
+        }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 700; color: #111827; }
+        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--muted); }
+
+        @media (max-width: 900px) {
+            body { padding: 20px; }
+            .grid { grid-template-columns: 1fr; }
         }
 
-        .modal-header {
-            font-size: 1.5em;
-            margin-bottom: 20px;
-            color: #333;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .close-btn {
-            background: none;
-            border: none;
-            font-size: 1.5em;
-            cursor: pointer;
-            color: #999;
-            padding: 0;
-            margin: 0;
-        }
-
-        .close-btn:hover {
-            color: #333;
-        }
-
-        .no-users {
-            text-align: center;
-            padding: 40px;
-            color: #999;
-            font-size: 1.2em;
-        }
-
-        .timestamp {
-            color: #999;
-            font-size: 0.9em;
-        }
-
-        @media (max-width: 768px) {
-            .form-row {
-                grid-template-columns: 1fr;
-            }
-
-            .container {
-                padding: 15px;
-            }
-
-            h1 {
-                font-size: 1.8em;
-            }
-
-            table {
-                font-size: 0.9em;
-            }
-
-            table th, table td {
-                padding: 10px;
-            }
-
-            .actions {
-                flex-direction: column;
-            }
-
-            .actions button {
-                width: 100%;
-            }
+        @media (max-width: 640px) {
+            .topbar { flex-wrap: wrap; }
+            .nav-links { width: 100%; justify-content: space-between; }
+            .form-grid { grid-template-columns: 1fr; }
+            .search-box { flex-direction: column; align-items: stretch; }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>👥 Admin User Management System</h1>
-            <p class="header-subtitle">Create, Read, Update, and Delete user accounts</p>
-        </header>
+    <div class="shell">
+        <div class="topbar">
+            <div class="brand">
+                <div class="brand-badge">TP</div>
+                <div>
+                    <div>Temasek Polytechnic</div>
+                    <div style="font-size: 12px; color: var(--muted); font-weight: 600;">Advanced Manufacturing Centre</div>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">Admin</a>
+                <a href="#">Logs</a>
+                <a href="#">Locked Accounts</a>
+                <a class="logout" href="#">Logout</a>
+            </div>
+        </div>
+
+        <div class="hero">
+            <h1>Admin Main Page</h1>
+            <p>Simulated admin controls plus your user management feature.</p>
+        </div>
 
         <?php if (!empty($message)): ?>
             <div class="alert alert-<?php echo $message_type; ?>">
@@ -647,133 +507,126 @@ $conn->close();
             </div>
         <?php endif; ?>
 
-        <!-- Create/Edit User Form Section -->
-        <div class="section">
-            <h2 class="section-title"><?php echo ($action === 'edit' && $current_user) ? 'Edit User' : 'Create New User'; ?></h2>
-            
-            <form method="POST">
-                <input type="hidden" name="action" value="<?php echo ($action === 'edit' && $current_user) ? 'update' : 'create'; ?>">
-                <?php if ($action === 'edit' && $current_user): ?>
-                    <input type="hidden" name="user_id" value="<?php echo $current_user['user_id']; ?>">
-                <?php endif; ?>
+        <div class="grid">
+            <div class="card">
+                <div class="card-title">User Management</div>
+                <div class="card-subtitle">Create, update, delete, and search user accounts.</div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="username">Username</label>
-                        <input type="text" id="username" name="username" 
-                               value="<?php echo $current_user ? htmlspecialchars($current_user['username']) : ''; ?>" 
-                               required>
+                <form method="POST" style="display: flex; flex-direction: column; gap: 14px;">
+                    <input type="hidden" name="action" value="<?php echo ($action === 'edit' && $current_user) ? 'update' : 'create'; ?>">
+                    <?php if ($action === 'edit' && $current_user): ?>
+                        <input type="hidden" name="user_id" value="<?php echo $current_user['user_id']; ?>">
+                    <?php endif; ?>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="username">Username</label>
+                            <input type="text" id="username" name="username"
+                                   value="<?php echo $current_user ? htmlspecialchars($current_user['username']) : ''; ?>"
+                                   required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" name="email"
+                                   value="<?php echo $current_user ? htmlspecialchars($current_user['email']) : ''; ?>"
+                                   required>
+                        </div>
                     </div>
 
-                    <div class="form-group">
-                        <label for="email">Email</label>
-                        <input type="email" id="email" name="email" 
-                               value="<?php echo $current_user ? htmlspecialchars($current_user['email']) : ''; ?>" 
-                               required>
+                    <?php if (!($action === 'edit' && $current_user)): ?>
+                        <div class="form-group">
+                            <label for="password">Password</label>
+                            <input type="password" id="password" name="password" required>
+                        </div>
+                    <?php endif; ?>
+
+                    <div class="form-grid">
+                        <div class="form-group">
+                            <label for="role">Role</label>
+                            <select id="role" name="role" required>
+                                <option value="employee" <?php echo ($current_user && $current_user['role'] === 'employee') ? 'selected' : ''; ?>>Employee</option>
+                                <option value="manager" <?php echo ($current_user && $current_user['role'] === 'manager') ? 'selected' : ''; ?>>Manager</option>
+                                <option value="admin" <?php echo ($current_user && $current_user['role'] === 'admin') ? 'selected' : ''; ?>>Admin</option>
+                                <option value="hr" <?php echo ($current_user && $current_user['role'] === 'hr') ? 'selected' : ''; ?>>HR</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label for="status">Status</label>
+                            <select id="status" name="status" required>
+                                <option value="active" <?php echo (!$current_user || $current_user['status'] === 'active') ? 'selected' : ''; ?>>Active</option>
+                                <option value="inactive" <?php echo ($current_user && $current_user['status'] === 'inactive') ? 'selected' : ''; ?>>Inactive</option>
+                                <option value="suspended" <?php echo ($current_user && $current_user['status'] === 'suspended') ? 'selected' : ''; ?>>Suspended</option>
+                            </select>
+                        </div>
                     </div>
-                </div>
 
-                <?php if (!($action === 'edit' && $current_user)): ?>
-                    <div class="form-group">
-                        <label for="password">Password</label>
-                        <input type="password" id="password" name="password" required>
+                    <div class="actions-row">
+                        <button type="submit" class="btn btn-primary">
+                            <?php echo ($action === 'edit' && $current_user) ? 'Update User' : 'Create User'; ?>
+                        </button>
+                        <?php if ($action === 'edit' && $current_user): ?>
+                            <a href="?"><button type="button" class="btn btn-secondary">Cancel</button></a>
+                        <?php endif; ?>
                     </div>
-                <?php endif; ?>
+                </form>
+            </div>
 
-                <div class="form-row">
-                    <div class="form-group">
-                        <label for="role">Role</label>
-                        <select id="role" name="role" required>
-                            <option value="employee" <?php echo ($current_user && $current_user['role'] === 'employee') ? 'selected' : ''; ?>>Employee</option>
-                            <option value="manager" <?php echo ($current_user && $current_user['role'] === 'manager') ? 'selected' : ''; ?>>Manager</option>
-                            <option value="admin" <?php echo ($current_user && $current_user['role'] === 'admin') ? 'selected' : ''; ?>>Admin</option>
-                            <option value="hr" <?php echo ($current_user && $current_user['role'] === 'hr') ? 'selected' : ''; ?>>HR</option>
-                        </select>
-                    </div>
+            <div class="card">
+                <div class="card-title">User Directory</div>
+                <div class="card-subtitle">Search existing users and manage records.</div>
 
-                    <div class="form-group">
-                        <label for="status">Status</label>
-                        <select id="status" name="status" required>
-                            <option value="active" <?php echo (!$current_user || $current_user['status'] === 'active') ? 'selected' : ''; ?>>Active</option>
-                            <option value="inactive" <?php echo ($current_user && $current_user['status'] === 'inactive') ? 'selected' : ''; ?>>Inactive</option>
-                            <option value="suspended" <?php echo ($current_user && $current_user['status'] === 'suspended') ? 'selected' : ''; ?>>Suspended</option>
-                        </select>
-                    </div>
-                </div>
+                <form method="GET" class="search-box">
+                    <input type="text" name="search" placeholder="Search by username or email..."
+                           value="<?php echo htmlspecialchars($search_query); ?>">
+                    <button type="submit" class="btn btn-primary">Search</button>
+                    <?php if (!empty($search_query)): ?>
+                        <a href="?"><button type="button" class="btn btn-secondary">Clear</button></a>
+                    <?php endif; ?>
+                </form>
 
-                <button type="submit" class="btn-primary">
-                    <?php echo ($action === 'edit' && $current_user) ? '✓ Update User' : '➕ Create User'; ?>
-                </button>
-                <?php if ($action === 'edit' && $current_user): ?>
-                    <a href="?"><button type="button" class="btn-secondary">Cancel</button></a>
-                <?php endif; ?>
-            </form>
-        </div>
-
-        <!-- User Search and List Section -->
-        <div class="section">
-            <h2 class="section-title">User Directory</h2>
-
-            <form method="GET" class="search-box">
-                <input type="text" name="search" placeholder="Search by username or email..." 
-                       value="<?php echo htmlspecialchars($search_query); ?>">
-                <button type="submit" class="btn-primary">🔍 Search</button>
-                <?php if (!empty($search_query)): ?>
-                    <a href="?"><button type="button" class="btn-secondary">Clear</button></a>
-                <?php endif; ?>
-            </form>
-
-            <?php if (count($users) > 0): ?>
-                <table>
-                    <thead>
-                        <tr>
-                            <th>Username</th>
-                            <th>Email</th>
-                            <th>Role</th>
-                            <th>Status</th>
-                            <th>Created</th>
-                            <th>Actions</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php foreach ($users as $user): ?>
+                <?php if (count($users) > 0): ?>
+                    <table>
+                        <thead>
                             <tr>
-                                <td><?php echo htmlspecialchars($user['username']); ?></td>
-                                <td><?php echo htmlspecialchars($user['email']); ?></td>
-                                <td>
-                                    <span class="role-badge role-<?php echo $user['role']; ?>">
-                                        <?php echo ucfirst($user['role']); ?>
-                                    </span>
-                                </td>
-                                <td>
-                                    <span class="status-<?php echo $user['status']; ?>">
-                                        <?php echo ucfirst($user['status']); ?>
-                                    </span>
-                                </td>
-                                <td class="timestamp"><?php echo date('M d, Y', strtotime($user['created_at'])); ?></td>
-                                <td>
-                                    <div class="actions">
-                                        <a href="?action=edit&id=<?php echo $user['user_id']; ?>">
-                                            <button type="button" class="btn-warning">✏️ Edit</button>
-                                        </a>
-                                        <a href="?action=delete_confirm&id=<?php echo $user['user_id']; ?>">
-                                            <button type="button" class="btn-danger">🗑️ Delete</button>
-                                        </a>
-                                    </div>
-                                </td>
+                                <th>Username</th>
+                                <th>Email</th>
+                                <th>Role</th>
+                                <th>Status</th>
+                                <th>Created</th>
+                                <th>Actions</th>
                             </tr>
-                        <?php endforeach; ?>
-                    </tbody>
-                </table>
-            <?php else: ?>
-                <div class="no-users">
-                    <?php echo !empty($search_query) ? 'No users found matching your search.' : 'No users found. Create one to get started!'; ?>
-                </div>
-            <?php endif; ?>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($users as $user): ?>
+                                <tr>
+                                    <td><?php echo htmlspecialchars($user['username']); ?></td>
+                                    <td><?php echo htmlspecialchars($user['email']); ?></td>
+                                    <td><span class="badge role-<?php echo $user['role']; ?>"><?php echo ucfirst($user['role']); ?></span></td>
+                                    <td><span class="status-<?php echo $user['status']; ?>"><?php echo ucfirst($user['status']); ?></span></td>
+                                    <td class="timestamp"><?php echo date('M d, Y', strtotime($user['created_at'])); ?></td>
+                                    <td>
+                                        <div class="actions-row">
+                                            <a href="?action=edit&id=<?php echo $user['user_id']; ?>">
+                                                <button type="button" class="btn btn-secondary">Edit</button>
+                                            </a>
+                                            <a href="?action=delete_confirm&id=<?php echo $user['user_id']; ?>">
+                                                <button type="button" class="btn btn-danger">Delete</button>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php else: ?>
+                    <div class="empty">
+                        <?php echo !empty($search_query) ? 'No users found matching your search.' : 'No users yet. Create one to get started!'; ?>
+                    </div>
+                <?php endif; ?>
+            </div>
         </div>
     </div>
 
-    <!-- Delete Confirmation Modal -->
     <?php if ($action === 'delete_confirm' && $current_user): ?>
         <div class="modal show">
             <div class="modal-content">
@@ -781,14 +634,14 @@ $conn->close();
                     <span>Confirm Deletion</span>
                     <a href="?"><button type="button" class="close-btn">&times;</button></a>
                 </div>
-                <p style="margin-bottom: 20px; color: #666;">
+                <p style="margin-bottom: 18px; color: var(--muted);">
                     Are you sure you want to delete the user <strong><?php echo htmlspecialchars($current_user['username']); ?></strong>? This action cannot be undone.
                 </p>
-                <form method="POST" style="margin-bottom: 20px;">
+                <form method="POST" class="actions-row" style="margin-top: 0;">
                     <input type="hidden" name="action" value="delete">
                     <input type="hidden" name="user_id" value="<?php echo $current_user['user_id']; ?>">
-                    <button type="submit" class="btn-danger">Yes, Delete User</button>
-                    <a href="?"><button type="button" class="btn-secondary">Cancel</button></a>
+                    <button type="submit" class="btn btn-danger">Yes, delete user</button>
+                    <a href="?"><button type="button" class="btn btn-secondary">Cancel</button></a>
                 </form>
             </div>
         </div>
