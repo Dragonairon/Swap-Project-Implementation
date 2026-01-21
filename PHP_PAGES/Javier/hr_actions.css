@@ -378,6 +378,89 @@ button {
     white-space: nowrap;
 }
 
+/* Workforce Availability Table */
+.availability-table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 20px;
+}
+
+.availability-table thead {
+    background-color: #667eea;
+    color: white;
+}
+
+.availability-table th {
+    padding: 15px;
+    text-align: left;
+    font-weight: 600;
+}
+
+.availability-table td {
+    padding: 12px 15px;
+    border-bottom: 1px solid #ddd;
+}
+
+.availability-table tbody tr:hover {
+    background-color: #f8f9ff;
+    transition: background-color 0.3s;
+}
+
+.availability-row.availability-available {
+    background-color: #f0f8f0;
+}
+
+.availability-row.availability-absent {
+    background-color: #fff8f0;
+}
+
+.status-badge-availability {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.85em;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.status-available {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.status-absent {
+    background-color: #fff3cd;
+    color: #856404;
+}
+
+.role-badge {
+    display: inline-block;
+    padding: 4px 10px;
+    border-radius: 4px;
+    font-size: 0.85em;
+    font-weight: 600;
+    background-color: #e7f0ff;
+    color: #667eea;
+}
+
+.absence-badge {
+    display: inline-block;
+    padding: 5px 10px;
+    border-radius: 4px;
+    font-size: 0.8em;
+    font-weight: 600;
+}
+
+.absence-leave {
+    background-color: #d4edda;
+    color: #155724;
+}
+
+.absence-mc {
+    background-color: #d1ecf1;
+    color: #0c5460;
+}
+
 .action-cell {
     display: flex;
     gap: 8px;

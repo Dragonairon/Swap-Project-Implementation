@@ -60,6 +60,14 @@ $leave_requests = getLeaveRequests($conn);
 $mc_records = getMCRecords($conn);
 $hr_actions_result = getAllHRActions($conn);
 $hr_actions = $hr_actions_result['success'] ? $hr_actions_result['data'] : [];
+$workforce_result = getWorkforceAvailability($conn);
+
+// Debug: Check if there's an error
+if (!$workforce_result['success']) {
+    error_log('Workforce availability error: ' . $workforce_result['error']);
+}
+
+$workforce_availability = $workforce_result['success'] ? $workforce_result['data'] : [];
 
 /**
  * Handle approve leave POST
@@ -308,6 +316,7 @@ $conn->close();
         <div class="tabs">
             <button class="tab-button active" onclick="switchTab('leave')">Leave Requests</button>
             <button class="tab-button" onclick="switchTab('mc')">Medical Certificates</button>
+            <button class="tab-button" onclick="switchTab('workforce')">Workforce Availability</button>
             <button class="tab-button" onclick="switchTab('history')">Action History</button>
         </div>
 
@@ -530,6 +539,107 @@ $conn->close();
                     </table>
                 <?php else: ?>
                     <p style="text-align: center; color: #999; padding: 20px;">No processed medical certificates.</p>
+                <?php endif; ?>
+            </div>
+        </div>
+
+        <!-- Workforce Availability Tab -->
+        <div id="workforce" class="tab-content">
+            <div class="section">
+                <h2 class="section-title">Workforce Availability</h2>
+
+                <?php if (count($workforce_availability) > 0): ?>
+                    <?php
+                        // Separate absent and available employees
+                        $absent_employees = array_filter($workforce_availability, function($emp) {
+                            return $emp['status'] === 'absent';
+                        });
+                        $available_employees = array_filter($workforce_availability, function($emp) {
+                            return $emp['status'] === 'available';
+                        });
+                    ?>
+
+                    <?php if (count($absent_employees) > 0): ?>
+                        <h3 class="section-subtitle">Currently Absent</h3>
+                        <table class="availability-table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Absence Type</th>
+                                    <th>Return Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($absent_employees as $employee): ?>
+                                    <tr class="availability-row availability-absent">
+                                        <td><?php echo $employee['user_id']; ?></td>
+                                        <td><?php echo htmlspecialchars($employee['username']); ?></td>
+                                        <td><span class="role-badge"><?php echo ucfirst($employee['role']); ?></span></td>
+                                        <td>
+                                            <span class="status-badge-availability status-absent">
+                                                Absent
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <?php 
+                                                if ($employee['absence_type'] === 'leave') {
+                                                    echo '<span class="absence-badge absence-leave">Leave</span>';
+                                                } elseif ($employee['absence_type'] === 'mc') {
+                                                    echo '<span class="absence-badge absence-mc">Medical Certificate</span>';
+                                                } else {
+                                                    echo '—';
+                                                }
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <?php 
+                                                if ($employee['end_date'] !== null) {
+                                                    echo 'Day ' . htmlspecialchars($employee['end_date']);
+                                                } else {
+                                                    echo '—';
+                                                }
+                                            ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+
+                    <?php if (count($available_employees) > 0): ?>
+                        <h3 class="section-subtitle">Available Employees</h3>
+                        <table class="availability-table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($available_employees as $employee): ?>
+                                    <tr class="availability-row availability-available">
+                                        <td><?php echo $employee['user_id']; ?></td>
+                                        <td><?php echo htmlspecialchars($employee['username']); ?></td>
+                                        <td><span class="role-badge"><?php echo ucfirst($employee['role']); ?></span></td>
+                                        <td>
+                                            <span class="status-badge-availability status-available">
+                                                Available
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+                <?php else: ?>
+                    <div class="no-records">
+                        <p>No workforce data available.</p>
+                    </div>
                 <?php endif; ?>
             </div>
         </div>

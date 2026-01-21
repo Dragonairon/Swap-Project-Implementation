@@ -3,13 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 17, 2026 at 10:07 PM
+-- Generation Time: Jan 21, 2026 at 07:26 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
-
--- Create database if it does not exist and select it
-CREATE DATABASE IF NOT EXISTS `project_database` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `project_database`;
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -142,7 +138,33 @@ INSERT INTO `hr_actions` (`action_id`, `hr_user_id`, `record_type`, `record_id`,
 (93, 2, 'mc', 1111, 'approve', NULL, '2026-01-17 21:05:53', 'unapproved', 'approved', 1),
 (94, 2, 'mc', 1111, 'edit', '0', '2026-01-17 21:06:32', 'approved', 'unapproved', 1),
 (95, 2, 'mc', 1111, 'approve', NULL, '2026-01-17 21:06:35', 'unapproved', 'approved', 1),
-(96, 2, 'mc', 1111, 'delete', '0', '2026-01-17 21:06:38', 'unapproved', 'approved', 1);
+(96, 2, 'mc', 1111, 'delete', '0', '2026-01-17 21:06:38', 'unapproved', 'approved', 1),
+(97, 2, 'mc', 123, 'approve', NULL, '2026-01-21 06:07:15', 'unapproved', 'approved', 1),
+(98, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:07:30', 'approved', 'rejected', 1),
+(99, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:07:35', 'rejected', 'unapproved', 1),
+(100, 2, 'mc', 123, 'approve', NULL, '2026-01-21 06:07:39', 'unapproved', 'approved', 1),
+(101, 2, 'mc', 123, 'approve', NULL, '2026-01-21 06:15:14', 'approved', 'approved', 1),
+(102, 2, 'mc', 123, 'approve', NULL, '2026-01-21 06:15:30', 'approved', 'approved', 1),
+(103, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:16:13', 'approved', 'rejected', 1),
+(104, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:16:18', 'rejected', 'approved', 1),
+(105, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:17:06', 'approved', 'approved', 1),
+(106, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:17:14', 'approved', 'rejected', 1),
+(107, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:17:18', 'rejected', 'approved', 1),
+(108, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:18:30', 'approved', 'approved', 1),
+(109, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:18:39', 'approved', 'rejected', 1),
+(110, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:18:45', 'rejected', 'approved', 1),
+(111, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:22:10', 'approved', 'approved', 1),
+(112, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:23:33', 'approved', 'approved', 1),
+(113, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:24:06', 'approved', 'rejected', 1),
+(114, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:24:13', 'rejected', 'approved', 1),
+(115, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:24:21', 'approved', 'unapproved', 1),
+(116, 2, 'mc', 123, 'approve', NULL, '2026-01-21 06:24:27', 'unapproved', 'approved', 1),
+(117, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:24:35', 'approved', 'unapproved', 1),
+(118, 2, 'mc', 123, 'reject', NULL, '2026-01-21 06:24:37', 'unapproved', 'rejected', 1),
+(119, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:24:46', 'rejected', 'approved', 1),
+(120, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:25:06', 'approved', 'rejected', 1),
+(121, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:25:13', 'rejected', 'unapproved', 1),
+(122, 2, 'mc', 123, 'approve', NULL, '2026-01-21 06:25:17', 'unapproved', 'approved', 1);
 
 -- --------------------------------------------------------
 
@@ -225,6 +247,13 @@ CREATE TABLE `mc_records` (
   `verified_at` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
+--
+-- Dumping data for table `mc_records`
+--
+
+INSERT INTO `mc_records` (`mc_id`, `user_id`, `clinic_name`, `start_date`, `end_date`, `mc_file_path`, `mime_type`, `verification_status`, `submitted_at`, `verified_at`) VALUES
+(123, 1, 123, 111, 222, 123, 123, 'approved', 213, 0);
+
 -- --------------------------------------------------------
 
 --
@@ -248,7 +277,9 @@ CREATE TABLE `users` (
 
 INSERT INTO `users` (`user_id`, `username`, `password_hash`, `email`, `role`, `status`, `created_at`, `updated_at`) VALUES
 (1, 'irfan', '$2y$10$ABVecqDGf1lBLXPyhK19cutjQ368jRjEt89sHmtk4NvPZEs5nOJKe', 'irfan@test.com', 'admin', 'active', '2026-01-14 03:25:49', '2026-01-14 03:25:49'),
-(2, 'javier', '$2y$10$ABVecqDGf1lBLXPyhK19cutjQ368jRjEt89sHmtk4NvPZEs5nOJKe', 'javier@test.com', 'hr', 'active', '2026-01-14 17:06:55', '2026-01-14 17:06:55');
+(2, 'javier', '$2y$10$ABVecqDGf1lBLXPyhK19cutjQ368jRjEt89sHmtk4NvPZEs5nOJKe', 'javier@test.com', 'hr', 'active', '2026-01-14 17:06:55', '2026-01-14 17:06:55'),
+(3, 'testemployee1', '$2y$10$CpQ1qBbXWs4UsvZrk5wFR.dEH0VQ6qdSCI0F5xGSy3dJZn/4YguTm', 'abc@test.com', 'employee', 'active', '2026-01-21 06:20:59', '2026-01-21 06:20:59'),
+(4, 'testmanager1', '$2y$10$cKerb404bvj5O9dYC3RkU.ZgeQtfWQj1/sFYKK8LT0E0Q/dqCVe.2', 'asdf@test.com', 'manager', 'active', '2026-01-21 06:22:05', '2026-01-21 06:22:05');
 
 --
 -- Indexes for dumped tables
@@ -298,7 +329,7 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `hr_actions`
 --
 ALTER TABLE `hr_actions`
-  MODIFY `action_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=97;
+  MODIFY `action_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=123;
 
 --
 -- AUTO_INCREMENT for table `leave_requests`
@@ -316,7 +347,7 @@ ALTER TABLE `login_attempts`
 -- AUTO_INCREMENT for table `users`
 --
 ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=3;
+  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
 
 --
 -- Constraints for dumped tables

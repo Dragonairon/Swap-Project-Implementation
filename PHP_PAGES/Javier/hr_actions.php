@@ -473,4 +473,49 @@ function deleteMCRecord($conn, $mc_id) {
         return ['success' => false, 'error' => $stmt->error];
     }
 }
+
+/**
+ * READ - Get workforce availability (all employees with their leave/MC status)
+ */
+function getWorkforceAvailability($conn) {
+    // Get all users with their leave/MC status using LEFT JOIN
+    $stmt = $conn->prepare("
+        SELECT 
+            u.user_id, 
+            u.username, 
+            u.role,
+            CASE 
+                WHEN lr.leave_id IS NOT NULL THEN 'absent'
+                WHEN mc.mc_id IS NOT NULL THEN 'absent'
+                ELSE 'available'
+            END as status,
+            CASE 
+                WHEN lr.leave_id IS NOT NULL THEN 'leave'
+                WHEN mc.mc_id IS NOT NULL THEN 'mc'
+                ELSE NULL
+            END as absence_type,
+            COALESCE(lr.end_date, mc.end_date) as end_date
+        FROM users u
+        LEFT JOIN leave_requests lr ON u.user_id = lr.user_id AND lr.status = 'approved'
+        LEFT JOIN mc_records mc ON u.user_id = mc.user_id AND mc.verification_status = 'approved'
+        ORDER BY u.username ASC
+    ");
+    
+    if (!$stmt) {
+        return ['success' => false, 'error' => 'Prepare failed: ' . $conn->error];
+    }
+    
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        $availability = [];
+        
+        while ($row = $result->fetch_assoc()) {
+            $availability[] = $row;
+        }
+        
+        return ['success' => true, 'data' => $availability];
+    } else {
+        return ['success' => false, 'error' => $stmt->error];
+    }
+}
 ?>
