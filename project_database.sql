@@ -372,7 +372,7 @@ CREATE TABLE IF NOT EXISTS `individual_table_requests` (
   `leave_id` int(11) NOT NULL,
   `start_date` date NOT NULL,
   `end_date` date NOT NULL,
-  `reason` date NOT NULL,
+  `reason` text NOT NULL,
   `status` varchar(20) DEFAULT 'unapproved',
   `submitted_at` timestamp NOT NULL DEFAULT current_timstamp(),
   PRIMARY_KEY (`leave_id`)
