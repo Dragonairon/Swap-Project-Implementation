@@ -363,3 +363,21 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
+
+-- Table structure for table `individual_table_requests`
+CREATE TABLE IF NOT EXISTS `individual_table_requests` (
+  `leave_id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `leave_type` varchar(50) NOT NULL,
+  `leave_id` int(11) NOT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL,
+  `reason` date NOT NULL,
+  `status` varchar(20) DEFAULT 'unapproved',
+  `submitted_at` timestamp NOT NULL DEFAULT current_timstamp(),
+  PRIMARY_KEY (`leave_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+-- Dumping sample data for table `individual_table_requests`
+INSERT INTO `individual_table_requests` (`user_id`, `leave_type`, `start_date`, `end_date`, `reason`, `status`)
+VALUES (654321, 'Annual', '2026-02-01', '2026-02-05', 'Individual Test', 'unnapproved');
