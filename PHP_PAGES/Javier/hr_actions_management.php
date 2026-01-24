@@ -1,4 +1,9 @@
 <?php
+// Configure session settings BEFORE session_start()
+session_name('HRSESSION');
+ini_set('session.cookie_httponly', 1);
+ini_set('session.cookie_samesite', 'Strict');
+
 session_start();
 
 // Database configuration
@@ -18,6 +23,18 @@ if ($conn->connect_error) {
 // Include CRUD functions
 require_once 'hr_actions.php';
 
+// Authentication check - ensure user is logged in
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
+    header('Location: login.php');
+    exit;
+}
+
+// Authorization check - ensure user has HR or Admin role
+if (!in_array($_SESSION['role'], ['hr', 'admin', 'manager'])) {
+    header('Location: index.php?error=unauthorized');
+    exit;
+}
+
 // Initialize variables
 $message = '';
 $message_type = '';
@@ -26,9 +43,10 @@ $leave_requests = [];
 $mc_records = [];
 $hr_actions = [];
 
-// Current HR user (simulate from session)
-$current_hr_user_id = 2; // Javier's user ID
-$current_user_agent = 1;
+// Current HR user from session
+$current_hr_user_id = $_SESSION['user_id'];
+$current_user_role = $_SESSION['role'];
+$current_user_agent = $_SESSION['user_id'];
 
 // Handle form submissions
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
@@ -36,21 +54,21 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $post_action = $_POST['action'];
 
         if ($post_action === 'approve_leave') {
-            handleApproveLeavePOST($conn, $_POST);
+            handleApproveLeavePOST($conn, $_POST, $current_hr_user_id, $current_user_role, $current_user_agent, $message, $message_type);
         } elseif ($post_action === 'reject_leave') {
-            handleRejectLeavePOST($conn, $_POST);
+            handleRejectLeavePOST($conn, $_POST, $current_hr_user_id, $current_user_role, $current_user_agent, $message, $message_type);
         } elseif ($post_action === 'approve_mc') {
-            handleApproveMCPOST($conn, $_POST);
+            handleApproveMCPOST($conn, $_POST, $current_hr_user_id, $current_user_role, $current_user_agent, $message, $message_type);
         } elseif ($post_action === 'reject_mc') {
-            handleRejectMCPOST($conn, $_POST);
+            handleRejectMCPOST($conn, $_POST, $current_hr_user_id, $current_user_role, $current_user_agent, $message, $message_type);
         } elseif ($post_action === 'edit_leave') {
-            handleEditLeavePOST($conn, $_POST);
+            handleEditLeavePOST($conn, $_POST, $current_hr_user_id, $current_user_role, $current_user_agent, $message, $message_type);
         } elseif ($post_action === 'delete_leave') {
-            handleDeleteLeavePOST($conn, $_POST);
+            handleDeleteLeavePOST($conn, $_POST, $current_hr_user_id, $current_user_role, $current_user_agent, $message, $message_type);
         } elseif ($post_action === 'edit_mc') {
-            handleEditMCPOST($conn, $_POST);
+            handleEditMCPOST($conn, $_POST, $current_hr_user_id, $current_user_role, $current_user_agent, $message, $message_type);
         } elseif ($post_action === 'delete_mc') {
-            handleDeleteMCPOST($conn, $_POST);
+            handleDeleteMCPOST($conn, $_POST, $current_hr_user_id, $current_user_role, $current_user_agent, $message, $message_type);
         }
     }
 }
@@ -60,227 +78,15 @@ $leave_requests = getLeaveRequests($conn);
 $mc_records = getMCRecords($conn);
 $hr_actions_result = getAllHRActions($conn);
 $hr_actions = $hr_actions_result['success'] ? $hr_actions_result['data'] : [];
+$workforce_result = getWorkforceAvailability($conn);
 
-/**
- * Handle approve leave POST
- */
-function handleApproveLeavePOST($conn, $data) {
-    global $message, $message_type, $current_hr_user_id, $current_user_agent;
-
-    $leave_id = intval($data['leave_id']);
-    $comment = trim($data['comment'] ?? '');
-
-    $result = updateLeaveRequestStatus($conn, $leave_id, 'approved', $current_hr_user_id, $current_user_agent, $comment);
-    
-    if ($result['success']) {
-        $message = 'Leave request approved successfully.';
-        $message_type = 'success';
-    } else {
-        $message = 'Error: ' . $result['error'];
-        $message_type = 'error';
-    }
+// Debug: Check if there's an error in workforce availability retrieval
+if (!$workforce_result['success']) {
+    error_log('Workforce availability error: ' . $workforce_result['error']);
 }
 
-/**
- * Handle reject leave POST
- */
-function handleRejectLeavePOST($conn, $data) {
-    global $message, $message_type, $current_hr_user_id, $current_user_agent;
+$workforce_availability = $workforce_result['success'] ? $workforce_result['data'] : [];
 
-    $leave_id = intval($data['leave_id']);
-    $comment = trim($data['comment'] ?? '');
-
-    $result = updateLeaveRequestStatus($conn, $leave_id, 'rejected', $current_hr_user_id, $current_user_agent, $comment);
-    
-    if ($result['success']) {
-        $message = 'Leave request rejected.';
-        $message_type = 'success';
-    } else {
-        $message = 'Error: ' . $result['error'];
-        $message_type = 'error';
-    }
-}
-
-/**
- * Handle approve MC POST
- */
-function handleApproveMCPOST($conn, $data) {
-    global $message, $message_type, $current_hr_user_id, $current_user_agent;
-
-    $mc_id = intval($data['mc_id']);
-
-    $result = updateMCRecordStatus($conn, $mc_id, 'approved', $current_hr_user_id, $current_user_agent);
-    
-    if ($result['success']) {
-        $message = 'MC record approved successfully.';
-        $message_type = 'success';
-    } else {
-        $message = 'Error: ' . $result['error'];
-        $message_type = 'error';
-    }
-}
-
-/**
- * Handle reject MC POST
- */
-function handleRejectMCPOST($conn, $data) {
-    global $message, $message_type, $current_hr_user_id, $current_user_agent;
-
-    $mc_id = intval($data['mc_id']);
-
-    $result = updateMCRecordStatus($conn, $mc_id, 'rejected', $current_hr_user_id, $current_user_agent);
-    
-    if ($result['success']) {
-        $message = 'MC record rejected.';
-        $message_type = 'success';
-    } else {
-        $message = 'Error: ' . $result['error'];
-        $message_type = 'error';
-    }
-}
-
-/**
- * Handle edit leave POST
- */
-function handleEditLeavePOST($conn, $data) {
-    global $message, $message_type, $current_hr_user_id, $current_user_agent;
-
-    $leave_id = intval($data['leave_id']);
-    $reason = $data['reason'] ?? '';  // Allow empty string to clear reason
-    $new_status = $data['status'] ?? 'unapproved';
-
-    // Get current status before update
-    $stmt = $conn->prepare("SELECT status, reason FROM leave_requests WHERE leave_id = ?");
-    $stmt->bind_param("i", $leave_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $leave = $result->fetch_assoc();
-
-    if (!$leave) {
-        $message = 'Leave request not found.';
-        $message_type = 'error';
-        return;
-    }
-
-    $previous_status = $leave['status'];
-    $previous_reason = $leave['reason'];
-
-    // Always update both fields
-    $updates = [
-        'reason' => $reason,
-        'status' => $new_status
-    ];
-
-    $result = updateLeaveRequest($conn, $leave_id, $updates);
-    
-    if ($result['success']) {
-        // Log the edit action with actual status change
-        $description = "Edited leave request: ";
-        $changes = [];
-        if ($reason !== $previous_reason) $changes[] = "reason updated";
-        if ($new_status !== $previous_status) $changes[] = "status changed from {$previous_status} to {$new_status}";
-        
-        if (!empty($changes)) {
-            $description .= implode(", ", $changes);
-        } else {
-            $description .= "no changes made";
-        }
-        
-        logHRAction($conn, $current_hr_user_id, 'leave', $leave_id, 'edit', $description, $current_user_agent, $previous_status, $new_status);
-        
-        $message = 'Leave request updated successfully.';
-        $message_type = 'success';
-    } else {
-        $message = 'Error: ' . $result['error'];
-        $message_type = 'error';
-    }
-}
-
-/**
- * Handle delete leave POST
- */
-function handleDeleteLeavePOST($conn, $data) {
-    global $message, $message_type, $current_hr_user_id, $current_user_agent;
-
-    $leave_id = intval($data['leave_id']);
-
-    $result = deleteLeaveRequest($conn, $leave_id);
-    
-    if ($result['success']) {
-        // Log the delete action
-        logHRAction($conn, $current_hr_user_id, 'leave', $leave_id, 'delete', 'Leave request deleted', $current_user_agent);
-        
-        $message = 'Leave request deleted successfully.';
-        $message_type = 'success';
-    } else {
-        $message = 'Error: ' . $result['error'];
-        $message_type = 'error';
-    }
-}
-
-/**
- * Handle edit MC POST
- */
-function handleEditMCPOST($conn, $data) {
-    global $message, $message_type, $current_hr_user_id, $current_user_agent;
-
-    $mc_id = intval($data['mc_id']);
-    $new_status = $data['status'] ?? 'unapproved';
-
-    // Get current status before update
-    $stmt = $conn->prepare("SELECT verification_status FROM mc_records WHERE mc_id = ?");
-    $stmt->bind_param("i", $mc_id);
-    $stmt->execute();
-    $result = $stmt->get_result();
-    $mc = $result->fetch_assoc();
-
-    if (!$mc) {
-        $message = 'MC record not found.';
-        $message_type = 'error';
-        return;
-    }
-
-    $previous_status = $mc['verification_status'];
-
-    $updates = ['verification_status' => $new_status];
-
-    $result = updateMCRecord($conn, $mc_id, $updates);
-    
-    if ($result['success']) {
-        // Log the edit action with actual status change
-        logHRAction($conn, $current_hr_user_id, 'mc', $mc_id, 'edit', "MC record verification status changed from {$previous_status} to {$new_status}", $current_user_agent, $previous_status, $new_status);
-        
-        $message = 'MC record updated successfully.';
-        $message_type = 'success';
-    } else {
-        $message = 'Error: ' . $result['error'];
-        $message_type = 'error';
-    }
-}
-
-/**
- * Handle delete MC POST
- */
-function handleDeleteMCPOST($conn, $data) {
-    global $message, $message_type, $current_hr_user_id, $current_user_agent;
-
-    $mc_id = intval($data['mc_id']);
-
-    $result = deleteMCRecord($conn, $mc_id);
-    
-    if ($result['success']) {
-        // Log the delete action
-        logHRAction($conn, $current_hr_user_id, 'mc', $mc_id, 'delete', 'MC record deleted', $current_user_agent);
-        
-        $message = 'MC record deleted successfully.';
-        $message_type = 'success';
-    } else {
-        $message = 'Error: ' . $result['error'];
-        $message_type = 'error';
-    }
-}
-
-$conn->close();
 ?>
 
 <!DOCTYPE html>
@@ -292,11 +98,29 @@ $conn->close();
     <link rel="stylesheet" href="hr_actions.css">
 </head>
 <body>
-    <div class="container">
-        <header>
-            <h1>📋 HR Actions Management System</h1>
-            <p class="header-subtitle">Approve, reject, and manage leave requests and medical certificates</p>
-        </header>
+    <div class="shell">
+        <!-- Topbar -->
+        <div class="topbar">
+            <div class="brand">
+                <div class="brand-badge">TP</div>
+                <div>
+                    <div>Temasek Polytechnic</div>
+                    <div style="font-size: 12px; color: var(--muted); font-weight: 600;">HR Management System</div>
+                </div>
+            </div>
+            <div class="nav-links">
+                <a href="#">Home</a>
+                <a href="#">HR</a>
+                <a href="#">Logs</a>
+                <a href="#">Locked Accounts</a>
+                <a href="logout.php" class="logout">Logout</a>
+            </div>
+        </div>
+
+        <div class="hero">
+            <h1>📋 HR Actions Management</h1>
+            <p>Approve, reject, and manage leave requests and medical certificates</p>
+        </div>
 
         <?php if (!empty($message)): ?>
             <div class="alert alert-<?php echo $message_type; ?>">
@@ -304,23 +128,25 @@ $conn->close();
             </div>
         <?php endif; ?>
 
-        <!-- Tabs Navigation -->
-        <div class="tabs">
-            <button class="tab-button active" onclick="switchTab('leave')">Leave Requests</button>
-            <button class="tab-button" onclick="switchTab('mc')">Medical Certificates</button>
-            <button class="tab-button" onclick="switchTab('history')">Action History</button>
-        </div>
+        <div class="grid">
+            <!-- Left Column: Approvals -->
+            <div class="card">
+                <div class="card-title">Pending Approvals</div>
+                <div class="card-subtitle">Approve or reject pending leave requests and medical certificates.</div>
 
-        <!-- Leave Requests Tab -->
-        <div id="leave" class="tab-content active">
-            <div class="section">
-                <h2 class="section-title">Pending Leave Requests</h2>
+                <!-- Tabs Navigation -->
+                <div class="tabs">
+                    <button class="tab-button active" onclick="switchTab('leave', this)">Leave Requests</button>
+                    <button class="tab-button" onclick="switchTab('mc', this)">Medical Certificates</button>
+                </div>
 
-                <?php
-                $pending_leaves = array_filter($leave_requests, function($leave) {
-                    return $leave['status'] === 'unapproved';
-                });
-                ?>
+                <!-- Leave Requests Tab -->
+                <div id="leave" class="tab-content active">
+                    <?php
+                    $pending_leaves = array_filter($leave_requests, function($leave) {
+                        return $leave['status'] === 'unapproved';
+                    });
+                    ?>
 
                 <?php if (count($pending_leaves) > 0): ?>
                     <div class="records-grid">
@@ -427,117 +253,210 @@ $conn->close();
                 <?php else: ?>
                     <p style="text-align: center; color: #999; padding: 20px;">No processed leave requests.</p>
                 <?php endif; ?>
-            </div>
-        </div>
+                </div>
 
-        <!-- Medical Certificates Tab -->
-        <div id="mc" class="tab-content">
-            <div class="section">
-                <h2 class="section-title">Pending Medical Certificates</h2>
+                <!-- Medical Certificates Tab -->
+                <div id="mc" class="tab-content">
+                    <?php
+                    $pending_mcs = array_filter($mc_records, function($mc) {
+                        return $mc['verification_status'] === 'unapproved';
+                    });
+                    ?>
 
-                <?php
-                $pending_mcs = array_filter($mc_records, function($mc) {
-                    return $mc['verification_status'] === 'unapproved';
-                });
-                ?>
-
-                <?php if (count($pending_mcs) > 0): ?>
-                    <div class="records-grid">
-                        <?php foreach ($pending_mcs as $mc): ?>
-                            <div class="record-card">
-                                <div class="record-header">
-                                    <h3>MC Record #<?php echo $mc['mc_id']; ?></h3>
-                                    <span class="status-badge status-unapproved">Pending</span>
-                                </div>
-
-                                <div class="record-details">
-                                    <div class="detail-row">
-                                        <span class="label">User ID:</span>
-                                        <span><?php echo $mc['user_id']; ?></span>
+                    <?php if (count($pending_mcs) > 0): ?>
+                        <div class="records-grid">
+                            <?php foreach ($pending_mcs as $mc): ?>
+                                <div class="record-card">
+                                    <div class="record-header">
+                                        <h3>MC Record #<?php echo $mc['mc_id']; ?></h3>
+                                        <span class="status-badge status-unapproved">Pending</span>
                                     </div>
-                                    <div class="detail-row">
-                                        <span class="label">Clinic:</span>
-                                        <span><?php echo $mc['clinic_name']; ?></span>
-                                    </div>
-                                    <div class="detail-row">
-                                        <span class="label">Period:</span>
-                                        <span>Day <?php echo $mc['start_date']; ?> - Day <?php echo $mc['end_date']; ?></span>
-                                    </div>
-                                </div>
 
-                                <form method="POST" class="action-form">
-                                    <div class="action-buttons">
-                                        <input type="hidden" name="action" value="approve_mc">
-                                        <input type="hidden" name="mc_id" value="<?php echo $mc['mc_id']; ?>">
-                                        <button type="submit" class="btn-success">✓ Approve</button>
+                                    <div class="record-details">
+                                        <div class="detail-row">
+                                            <span class="label">User ID:</span>
+                                            <span><?php echo $mc['user_id']; ?></span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="label">Clinic:</span>
+                                            <span><?php echo $mc['clinic_name']; ?></span>
+                                        </div>
+                                        <div class="detail-row">
+                                            <span class="label">Period:</span>
+                                            <span>Day <?php echo $mc['start_date']; ?> - Day <?php echo $mc['end_date']; ?></span>
+                                        </div>
                                     </div>
-                                </form>
 
-                                <form method="POST" class="action-form">
-                                    <input type="hidden" name="action" value="reject_mc">
-                                    <input type="hidden" name="mc_id" value="<?php echo $mc['mc_id']; ?>">
-                                    <div class="action-buttons">
-                                        <button type="submit" class="btn-danger">✗ Reject</button>
-                                    </div>
-                                </form>
-                            </div>
-                        <?php endforeach; ?>
-                    </div>
-                <?php else: ?>
-                    <div class="no-records">
-                        <p>✓ No pending medical certificates at the moment.</p>
-                    </div>
-                <?php endif; ?>
-
-                <h3 class="section-subtitle">Processed Medical Certificates</h3>
-                <?php
-                $processed_mcs = array_filter($mc_records, function($mc) {
-                    return $mc['verification_status'] !== 'unapproved';
-                });
-                ?>
-
-                <?php if (count($processed_mcs) > 0): ?>
-                    <table class="history-table">
-                        <thead>
-                            <tr>
-                                <th>ID</th>
-                                <th>User</th>
-                                <th>Clinic</th>
-                                <th>Period</th>
-                                <th>Status</th>
-                                <th>Actions</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <?php foreach ($processed_mcs as $mc): ?>
-                                <tr>
-                                    <td><?php echo $mc['mc_id']; ?></td>
-                                    <td><?php echo $mc['user_id']; ?></td>
-                                    <td><?php echo $mc['clinic_name']; ?></td>
-                                    <td>Day <?php echo $mc['start_date']; ?> - <?php echo $mc['end_date']; ?></td>
-                                    <td><span class="status-badge status-<?php echo $mc['verification_status']; ?>"><?php echo ucfirst($mc['verification_status']); ?></span></td>
-                                    <td class="action-cell">
-                                        <button type="button" class="btn-small btn-warning" onclick="openEditMCModal(<?php echo $mc['mc_id']; ?>, '<?php echo $mc['verification_status']; ?>')">✏️ Edit</button>
-                                        <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this MC record? This action cannot be undone.');">
-                                            <input type="hidden" name="action" value="delete_mc">
+                                    <form method="POST" class="action-form">
+                                        <div class="action-buttons">
+                                            <input type="hidden" name="action" value="approve_mc">
                                             <input type="hidden" name="mc_id" value="<?php echo $mc['mc_id']; ?>">
-                                            <button type="submit" class="btn-small btn-danger">🗑️ Delete</button>
-                                        </form>
-                                    </td>
-                                </tr>
+                                            <button type="submit" class="btn-success">✓ Approve</button>
+                                        </div>
+                                    </form>
+
+                                    <form method="POST" class="action-form">
+                                        <input type="hidden" name="action" value="reject_mc">
+                                        <input type="hidden" name="mc_id" value="<?php echo $mc['mc_id']; ?>">
+                                        <div class="action-buttons">
+                                            <button type="submit" class="btn-danger">✗ Reject</button>
+                                        </div>
+                                    </form>
+                                </div>
                             <?php endforeach; ?>
-                        </tbody>
-                    </table>
+                        </div>
+                    <?php else: ?>
+                        <div class="no-records">
+                            <p>✓ No pending medical certificates at the moment.</p>
+                        </div>
+                    <?php endif; ?>
+
+                    <h3 class="section-subtitle">Processed Medical Certificates</h3>
+                    <?php
+                    $processed_mcs = array_filter($mc_records, function($mc) {
+                        return $mc['verification_status'] !== 'unapproved';
+                    });
+                    ?>
+
+                    <?php if (count($processed_mcs) > 0): ?>
+                        <table class="history-table">
+                            <thead>
+                                <tr>
+                                    <th>ID</th>
+                                    <th>User</th>
+                                    <th>Clinic</th>
+                                    <th>Period</th>
+                                    <th>Status</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($processed_mcs as $mc): ?>
+                                    <tr>
+                                        <td><?php echo $mc['mc_id']; ?></td>
+                                        <td><?php echo $mc['user_id']; ?></td>
+                                        <td><?php echo $mc['clinic_name']; ?></td>
+                                        <td>Day <?php echo $mc['start_date']; ?> - <?php echo $mc['end_date']; ?></td>
+                                        <td><span class="status-badge status-<?php echo $mc['verification_status']; ?>"><?php echo ucfirst($mc['verification_status']); ?></span></td>
+                                        <td class="action-cell">
+                                            <button type="button" class="btn-small btn-warning" onclick="openEditMCModal(<?php echo $mc['mc_id']; ?>, '<?php echo $mc['verification_status']; ?>')">✏️ Edit</button>
+                                            <form method="POST" style="display:inline;" onsubmit="return confirm('Delete this MC record? This action cannot be undone.');">
+                                                <input type="hidden" name="action" value="delete_mc">
+                                                <input type="hidden" name="mc_id" value="<?php echo $mc['mc_id']; ?>">
+                                                <button type="submit" class="btn-small btn-danger">🗑️ Delete</button>
+                                            </form>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php else: ?>
+                        <div class="empty">No pending medical certificates.</div>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <div class="card">
+                <div class="card-title">Workforce Availability</div>
+                <div class="card-subtitle">Current status of employees on leave or medical leave.</div>
+
+                <?php if (count($workforce_availability) > 0): ?>
+                    <?php
+                        // Separate absent and available employees
+                        $absent_employees = array_filter($workforce_availability, function($emp) {
+                            return $emp['status'] === 'absent';
+                        });
+                        $available_employees = array_filter($workforce_availability, function($emp) {
+                            return $emp['status'] === 'available';
+                        });
+                    ?>
+
+                    <?php if (count($absent_employees) > 0): ?>
+                        <h3 class="section-subtitle">Currently Absent</h3>
+                        <table class="availability-table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                    <th>Absence Type</th>
+                                    <th>Return Date</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($absent_employees as $employee): ?>
+                                    <tr class="availability-row availability-absent">
+                                        <td><?php echo $employee['user_id']; ?></td>
+                                        <td><?php echo htmlspecialchars($employee['username']); ?></td>
+                                        <td><span class="role-badge"><?php echo ucfirst($employee['role']); ?></span></td>
+                                        <td>
+                                            <span class="status-badge-availability status-absent">
+                                                Absent
+                                            </span>
+                                        </td>
+                                        <td>
+                                            <?php 
+                                                if ($employee['absence_type'] === 'leave') {
+                                                    echo '<span class="absence-badge absence-leave">Leave</span>';
+                                                } elseif ($employee['absence_type'] === 'mc') {
+                                                    echo '<span class="absence-badge absence-mc">Medical Certificate</span>';
+                                                } else {
+                                                    echo '—';
+                                                }
+                                            ?>
+                                        </td>
+                                        <td>
+                                            <?php 
+                                                if ($employee['end_date'] !== null) {
+                                                    echo 'Day ' . htmlspecialchars($employee['end_date']);
+                                                } else {
+                                                    echo '—';
+                                                }
+                                            ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
+
+                    <?php if (count($available_employees) > 0): ?>
+                        <h3 class="section-subtitle">Available Employees</h3>
+                        <table class="availability-table">
+                            <thead>
+                                <tr>
+                                    <th>User ID</th>
+                                    <th>Username</th>
+                                    <th>Role</th>
+                                    <th>Status</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($available_employees as $employee): ?>
+                                    <tr class="availability-row availability-available">
+                                        <td><?php echo $employee['user_id']; ?></td>
+                                        <td><?php echo htmlspecialchars($employee['username']); ?></td>
+                                        <td><span class="role-badge"><?php echo ucfirst($employee['role']); ?></span></td>
+                                        <td>
+                                            <span class="status-badge-availability status-available">
+                                                Available
+                                            </span>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    <?php endif; ?>
                 <?php else: ?>
-                    <p style="text-align: center; color: #999; padding: 20px;">No processed medical certificates.</p>
+                    <div class="empty">No workforce data available.</div>
                 <?php endif; ?>
             </div>
         </div>
 
-        <!-- Action History Tab -->
-        <div id="history" class="tab-content">
-            <div class="section">
-                <h2 class="section-title">HR Action History</h2>
+        <!-- Action History Section -->
+        <div class="card">
+            <div class="card-title">HR Action History</div>
+            <div class="card-subtitle">Complete audit trail of all actions performed.</div>
 
                 <?php if (count($hr_actions) > 0): ?>
                     <table class="history-table">
@@ -574,27 +493,22 @@ $conn->close();
                         </tbody>
                     </table>
                 <?php else: ?>
-                    <div class="no-records">
-                        <p>No HR actions recorded yet.</p>
-                    </div>
+                    <div class="empty">No HR actions recorded yet.</div>
                 <?php endif; ?>
             </div>
         </div>
     </div>
 
     <script>
-        function switchTab(tabName) {
-            // Hide all tabs
-            const tabs = document.querySelectorAll('.tab-content');
-            tabs.forEach(tab => tab.classList.remove('active'));
+        function switchTab(tabName, button) {
+            document.querySelectorAll('.tab-content')
+                .forEach(tab => tab.classList.remove('active'));
 
-            // Remove active class from all buttons
-            const buttons = document.querySelectorAll('.tab-button');
-            buttons.forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.tab-button')
+                .forEach(btn => btn.classList.remove('active'));
 
-            // Show selected tab and mark button as active
             document.getElementById(tabName).classList.add('active');
-            event.target.classList.add('active');
+            button.classList.add('active');
         }
 
         // Edit Leave Modal Functions
@@ -692,6 +606,7 @@ $conn->close();
                     <button type="button" class="btn-secondary" onclick="closeEditMCModal()">Cancel</button>
                 </div>
             </form>
+        </div>
         </div>
     </div>
 </body>

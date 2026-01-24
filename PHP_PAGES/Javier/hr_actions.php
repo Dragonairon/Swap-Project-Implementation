@@ -1,5 +1,21 @@
 <?php
-session_start();
+
+// Session timeout and regeneration (only executed after session is started)
+if (session_status() === PHP_SESSION_ACTIVE) {
+    // Regenerate session ID on first request
+    if (!isset($_SESSION['_regenerated'])) {
+        session_regenerate_id(true);
+        $_SESSION['_regenerated'] = true;
+    }
+
+    // Check session timeout (30 minutes)
+    if (isset($_SESSION['last_activity']) && time() - $_SESSION['last_activity'] > 1800) {
+        session_destroy();
+        header('Location: login.php?expired=1');
+        exit;
+    }
+    $_SESSION['last_activity'] = time();
+}
 
 // Database configuration
 $db_host = 'localhost';
@@ -16,6 +32,26 @@ if ($conn->connect_error) {
 }
 
 // CRUD functions for HR actions
+
+/**
+ * Check if user has permission for action
+ */
+function hasPermission($user_role, $required_roles) {
+    if (!is_array($required_roles)) {
+        $required_roles = [$required_roles];
+    }
+    return in_array($user_role, $required_roles, true);
+}
+
+/**
+ * Verify user is HR or Admin before allowing HR action
+ */
+function verifyHRAuthorization($user_role) {
+    if (!in_array($user_role, ['hr', 'admin', 'manager'], true)) {
+        return ['success' => false, 'error' => 'Insufficient permissions. Only HR, Manager, and Admin users can perform this action.'];
+    }
+    return ['success' => true];
+}
 
 /**
  * CREATE - Add a new HR action
@@ -471,6 +507,303 @@ function deleteMCRecord($conn, $mc_id) {
         }
     } else {
         return ['success' => false, 'error' => $stmt->error];
+    }
+}
+
+/**
+ * READ - Get workforce availability (all employees with their leave/MC status)
+ */
+function getWorkforceAvailability($conn) {
+    // Get all users with their leave/MC status using LEFT JOIN
+    $stmt = $conn->prepare("
+        SELECT 
+            u.user_id, 
+            u.username, 
+            u.role,
+            CASE 
+                WHEN lr.leave_id IS NOT NULL THEN 'absent'
+                WHEN mc.mc_id IS NOT NULL THEN 'absent'
+                ELSE 'available'
+            END as status,
+            CASE 
+                WHEN lr.leave_id IS NOT NULL THEN 'leave'
+                WHEN mc.mc_id IS NOT NULL THEN 'mc'
+                ELSE NULL
+            END as absence_type,
+            COALESCE(lr.end_date, mc.end_date) as end_date
+        FROM users u
+        LEFT JOIN leave_requests lr ON u.user_id = lr.user_id AND lr.status = 'approved'
+        LEFT JOIN mc_records mc ON u.user_id = mc.user_id AND mc.verification_status = 'approved'
+        ORDER BY u.username ASC
+    ");
+    
+    if (!$stmt) {
+        return ['success' => false, 'error' => 'Prepare failed: ' . $conn->error];
+    }
+    
+    if ($stmt->execute()) {
+        $result = $stmt->get_result();
+        $availability = [];
+        
+        while ($row = $result->fetch_assoc()) {
+            $availability[] = $row;
+        }
+        
+        return ['success' => true, 'data' => $availability];
+    } else {
+        return ['success' => false, 'error' => $stmt->error];
+    }
+}
+
+// POST HANDLER FUNCTIONS
+
+/**
+ * Handle approve leave POST
+ */
+function handleApproveLeavePOST($conn, $data, $current_hr_user_id, $current_user_role, $current_user_agent, &$message, &$message_type) {
+    $auth = verifyHRAuthorization($current_user_role);
+    if (!$auth['success']) {
+        $message = $auth['error'];
+        $message_type = 'error';
+        return;
+    }
+
+    $leave_id = intval($data['leave_id']);
+    $comment = trim($data['comment'] ?? '');
+
+    $result = updateLeaveRequestStatus($conn, $leave_id, 'approved', $current_hr_user_id, $current_user_agent, $comment);
+    
+    if ($result['success']) {
+        $message = 'Leave request approved successfully.';
+        $message_type = 'success';
+    } else {
+        $message = 'Error: ' . $result['error'];
+        $message_type = 'error';
+    }
+}
+
+/**
+ * Handle reject leave POST
+ */
+function handleRejectLeavePOST($conn, $data, $current_hr_user_id, $current_user_role, $current_user_agent, &$message, &$message_type) {
+    $auth = verifyHRAuthorization($current_user_role);
+    if (!$auth['success']) {
+        $message = $auth['error'];
+        $message_type = 'error';
+        return;
+    }
+
+    $leave_id = intval($data['leave_id']);
+    $comment = trim($data['comment'] ?? '');
+
+    $result = updateLeaveRequestStatus($conn, $leave_id, 'rejected', $current_hr_user_id, $current_user_agent, $comment);
+    
+    if ($result['success']) {
+        $message = 'Leave request rejected.';
+        $message_type = 'success';
+    } else {
+        $message = 'Error: ' . $result['error'];
+        $message_type = 'error';
+    }
+}
+
+/**
+ * Handle approve MC POST
+ */
+function handleApproveMCPOST($conn, $data, $current_hr_user_id, $current_user_role, $current_user_agent, &$message, &$message_type) {
+    $auth = verifyHRAuthorization($current_user_role);
+    if (!$auth['success']) {
+        $message = $auth['error'];
+        $message_type = 'error';
+        return;
+    }
+
+    $mc_id = intval($data['mc_id']);
+
+    $result = updateMCRecordStatus($conn, $mc_id, 'approved', $current_hr_user_id, $current_user_agent);
+    
+    if ($result['success']) {
+        $message = 'MC record approved successfully.';
+        $message_type = 'success';
+    } else {
+        $message = 'Error: ' . $result['error'];
+        $message_type = 'error';
+    }
+}
+
+/**
+ * Handle reject MC POST
+ */
+function handleRejectMCPOST($conn, $data, $current_hr_user_id, $current_user_role, $current_user_agent, &$message, &$message_type) {
+    $auth = verifyHRAuthorization($current_user_role);
+    if (!$auth['success']) {
+        $message = $auth['error'];
+        $message_type = 'error';
+        return;
+    }
+
+    $mc_id = intval($data['mc_id']);
+
+    $result = updateMCRecordStatus($conn, $mc_id, 'rejected', $current_hr_user_id, $current_user_agent);
+    
+    if ($result['success']) {
+        $message = 'MC record rejected.';
+        $message_type = 'success';
+    } else {
+        $message = 'Error: ' . $result['error'];
+        $message_type = 'error';
+    }
+}
+
+/**
+ * Handle edit leave POST
+ */
+function handleEditLeavePOST($conn, $data, $current_hr_user_id, $current_user_role, $current_user_agent, &$message, &$message_type) {
+    if (!hasPermission($current_user_role, ['hr', 'admin'])) {
+        $message = 'Insufficient permissions. Only HR and Admin users can edit leave requests.';
+        $message_type = 'error';
+        return;
+    }
+
+    $leave_id = intval($data['leave_id']);
+    $reason = $data['reason'] ?? '';
+    $new_status = $data['status'] ?? 'unapproved';
+
+    // Get current status before update
+    $stmt = $conn->prepare("SELECT status, reason FROM leave_requests WHERE leave_id = ?");
+    $stmt->bind_param("i", $leave_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $leave = $result->fetch_assoc();
+
+    if (!$leave) {
+        $message = 'Leave request not found.';
+        $message_type = 'error';
+        return;
+    }
+
+    $previous_status = $leave['status'];
+    $previous_reason = $leave['reason'];
+
+    $updates = [
+        'reason' => $reason,
+        'status' => $new_status
+    ];
+
+    $result = updateLeaveRequest($conn, $leave_id, $updates);
+    
+    if ($result['success']) {
+        $description = "Edited leave request: ";
+        $changes = [];
+        if ($reason !== $previous_reason) $changes[] = "reason updated";
+        if ($new_status !== $previous_status) $changes[] = "status changed from {$previous_status} to {$new_status}";
+        
+        if (!empty($changes)) {
+            $description .= implode(", ", $changes);
+        } else {
+            $description .= "no changes made";
+        }
+        
+        logHRAction($conn, $current_hr_user_id, 'leave', $leave_id, 'edit', $description, $current_user_agent, $previous_status, $new_status);
+        
+        $message = 'Leave request updated successfully.';
+        $message_type = 'success';
+    } else {
+        $message = 'Error: ' . $result['error'];
+        $message_type = 'error';
+    }
+}
+
+/**
+ * Handle delete leave POST
+ */
+function handleDeleteLeavePOST($conn, $data, $current_hr_user_id, $current_user_role, $current_user_agent, &$message, &$message_type) {
+    if (!hasPermission($current_user_role, ['admin'])) {
+        $message = 'Insufficient permissions. Only Admin users can delete leave requests.';
+        $message_type = 'error';
+        return;
+    }
+
+    $leave_id = intval($data['leave_id']);
+
+    $result = deleteLeaveRequest($conn, $leave_id);
+    
+    if ($result['success']) {
+        logHRAction($conn, $current_hr_user_id, 'leave', $leave_id, 'delete', 'Leave request deleted', $current_user_agent);
+        
+        $message = 'Leave request deleted successfully.';
+        $message_type = 'success';
+    } else {
+        $message = 'Error: ' . $result['error'];
+        $message_type = 'error';
+    }
+}
+
+/**
+ * Handle edit MC POST
+ */
+function handleEditMCPOST($conn, $data, $current_hr_user_id, $current_user_role, $current_user_agent, &$message, &$message_type) {
+    if (!hasPermission($current_user_role, ['hr', 'admin'])) {
+        $message = 'Insufficient permissions. Only HR and Admin users can edit MC records.';
+        $message_type = 'error';
+        return;
+    }
+
+    $mc_id = intval($data['mc_id']);
+    $new_status = $data['status'] ?? 'unapproved';
+
+    // Get current status before update
+    $stmt = $conn->prepare("SELECT verification_status FROM mc_records WHERE mc_id = ?");
+    $stmt->bind_param("i", $mc_id);
+    $stmt->execute();
+    $result = $stmt->get_result();
+    $mc = $result->fetch_assoc();
+
+    if (!$mc) {
+        $message = 'MC record not found.';
+        $message_type = 'error';
+        return;
+    }
+
+    $previous_status = $mc['verification_status'];
+
+    $updates = ['verification_status' => $new_status];
+
+    $result = updateMCRecord($conn, $mc_id, $updates);
+    
+    if ($result['success']) {
+        logHRAction($conn, $current_hr_user_id, 'mc', $mc_id, 'edit', "MC record verification status changed from {$previous_status} to {$new_status}", $current_user_agent, $previous_status, $new_status);
+        
+        $message = 'MC record updated successfully.';
+        $message_type = 'success';
+    } else {
+        $message = 'Error: ' . $result['error'];
+        $message_type = 'error';
+    }
+}
+
+/**
+ * Handle delete MC POST
+ */
+function handleDeleteMCPOST($conn, $data, $current_hr_user_id, $current_user_role, $current_user_agent, &$message, &$message_type) {
+    if (!hasPermission($current_user_role, ['admin'])) {
+        $message = 'Insufficient permissions. Only Admin users can delete MC records.';
+        $message_type = 'error';
+        return;
+    }
+
+    $mc_id = intval($data['mc_id']);
+
+    $result = deleteMCRecord($conn, $mc_id);
+    
+    if ($result['success']) {
+        logHRAction($conn, $current_hr_user_id, 'mc', $mc_id, 'delete', 'MC record deleted', $current_user_agent);
+        
+        $message = 'MC record deleted successfully.';
+        $message_type = 'success';
+    } else {
+        $message = 'Error: ' . $result['error'];
+        $message_type = 'error';
     }
 }
 ?>
