@@ -1,5 +1,25 @@
 <?php
+
 session_start();
+
+// Note: session already started above; avoid duplicate session_start()
+
+// ============================================
+// XSS PROTECTION: Security Headers
+// ============================================
+
+// Prevent XSS attacks with Content Security Policy
+header("Content-Security-Policy: default-src 'self'; script-src 'unsafe-inline' 'self'; style-src 'unsafe-inline' 'self'; img-src 'self' data:; font-src 'self'; connect-src 'self'; frame-ancestors 'none';");
+
+// Additional XSS protection headers
+header("X-XSS-Protection: 1; mode=block");
+header("X-Content-Type-Options: nosniff");
+header("X-Frame-Options: DENY");
+header("Referrer-Policy: strict-origin-when-cross-origin");
+
+// Prevent caching of sensitive pages
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Pragma: no-cache");
 
 // Database configuration
 $db_host = 'localhost';
@@ -13,6 +33,25 @@ $conn = new mysqli($db_host, $db_user, $db_password, $db_name);
 // Check connection
 if ($conn->connect_error) {
     die('Connection failed: ' . $conn->connect_error);
+}
+
+// ============================================
+// ACCESS CONTROL: Authentication Check
+// ============================================
+// Verify user is logged in
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['username'])) {
+    // User is not authenticated - redirect to login
+    header('Location: ../Javier/login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
+    exit();
+}
+
+// ============================================
+// ACCESS CONTROL: Authorization Check
+// ============================================
+// Verify user has admin role
+if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
+    // User does not have admin privileges
+    exit();
 }
 
 // Initialize variables
@@ -46,10 +85,9 @@ if ($action === 'delete_confirm' && isset($_GET['id'])) {
     $current_user = getUserById($conn, $_GET['id']);
 }
 
-// Search functionality
-$search_query = isset($_GET['search']) ? $_GET['search'] : '';
+// Search functionality (XSS-safe)
+$search_query = isset($_GET['search']) ? sanitizeInput($_GET['search']) : '';
 $users = searchUsers($conn, $search_query);
-
 /**
  * Handle user creation
  */
@@ -249,6 +287,48 @@ function searchUsers($conn, $query) {
     return $users;
 }
 
+/**
+ * Sanitize input to prevent XSS attacks
+ * This function removes potentially dangerous characters and scripts
+ */
+function sanitizeInput($input) {
+    if (is_array($input)) {
+        return array_map('sanitizeInput', $input);
+    }
+    
+    // Remove null bytes
+    $input = str_replace(chr(0), '', $input);
+    
+    // Trim whitespace
+    $input = trim($input);
+    
+    // Remove any HTML/script tags for display
+    $input = strip_tags($input);
+    
+    return $input;
+}
+
+/**
+ * Safely output data to HTML (XSS Protection)
+ */
+function escapeHtml($data) {
+    return htmlspecialchars($data, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+}
+
+/**
+ * Sanitize for HTML attribute context
+ */
+function escapeHtmlAttr($data) {
+    return htmlspecialchars($data, ENT_QUOTES | ENT_HTML5, 'UTF-8');
+}
+
+/**
+ * Sanitize for JavaScript context (if needed)
+ */
+function escapeJs($data) {
+    return json_encode($data, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+}
+
 $conn->close();
 ?>
 
@@ -258,224 +338,7 @@ $conn->close();
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Admin User Management</title>
-    <style>
-        :root {
-            --bg: #f5f6fb;
-            --card: #ffffff;
-            --primary: #d61f3e;
-            --primary-strong: #b91832;
-            --muted: #6b7280;
-            --border: #e5e7eb;
-            --shadow: 0 16px 40px rgba(0, 0, 0, 0.08);
-            --radius: 18px;
-        }
-
-        * { margin: 0; padding: 0; box-sizing: border-box; }
-
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: var(--bg);
-            color: #111827;
-            min-height: 100vh;
-            padding: 32px;
-        }
-
-        a { text-decoration: none; color: inherit; }
-
-        .shell {
-            max-width: 1200px;
-            margin: 0 auto;
-            display: flex;
-            flex-direction: column;
-            gap: 20px;
-        }
-
-        .topbar {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 16px 22px;
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 16px;
-        }
-
-        .brand {
-            display: flex;
-            align-items: center;
-            gap: 10px;
-            font-weight: 700;
-            color: #1f2937;
-            letter-spacing: 0.2px;
-        }
-
-        .brand-badge {
-            width: 42px;
-            height: 42px;
-            border-radius: 14px;
-            background: var(--primary);
-            display: grid;
-            place-items: center;
-            color: #fff;
-            font-weight: 800;
-            box-shadow: 0 8px 20px rgba(214, 31, 62, 0.35);
-        }
-
-        .nav-links {
-            display: flex;
-            gap: 18px;
-            align-items: center;
-            font-weight: 600;
-            color: #374151;
-        }
-
-        .nav-links a:hover { color: var(--primary); }
-
-        .logout {
-            padding: 10px 16px;
-            border-radius: 12px;
-            border: 1px solid var(--primary);
-            color: var(--primary);
-            font-weight: 700;
-            background: #fff;
-            transition: all 0.2s ease;
-        }
-
-        .logout:hover {
-            background: var(--primary);
-            color: #fff;
-            box-shadow: 0 8px 20px rgba(214, 31, 62, 0.25);
-        }
-
-        .hero {
-            background: linear-gradient(135deg, #ffe9ed, #fef6f8);
-            border: 1px solid #ffe0e6;
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 26px;
-        }
-
-        .hero h1 { font-size: 32px; margin-bottom: 6px; color: #111827; }
-        .hero p { color: var(--muted); font-weight: 600; }
-
-        .grid { display: grid; grid-template-columns: 1.1fr 1fr; gap: 18px; }
-
-        .card {
-            background: var(--card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            box-shadow: var(--shadow);
-            padding: 22px;
-        }
-
-        .card-title { font-size: 20px; color: #111827; margin-bottom: 8px; display: flex; gap: 10px; align-items: center; }
-        .card-subtitle { color: var(--muted); margin-bottom: 18px; }
-
-        .form-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 14px; }
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
-        label { font-weight: 700; color: #1f2937; }
-
-        input[type='text'], input[type='email'], input[type='password'], select {
-            width: 100%;
-            padding: 12px 12px;
-            border-radius: 12px;
-            border: 1px solid var(--border);
-            background: #f9fafb;
-            font-size: 15px;
-            transition: border-color 0.15s ease, background 0.15s ease;
-        }
-
-        input:focus, select:focus {
-            outline: none;
-            border-color: var(--primary);
-            background: #fff;
-            box-shadow: 0 0 0 3px rgba(214, 31, 62, 0.12);
-        }
-
-        .actions-row { display: flex; gap: 10px; flex-wrap: wrap; margin-top: 10px; }
-
-        .btn {
-            padding: 12px 18px;
-            border: none;
-            border-radius: 12px;
-            font-weight: 700;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .btn-primary { background: var(--primary); color: #fff; }
-        .btn-primary:hover { background: var(--primary-strong); box-shadow: 0 10px 22px rgba(214, 31, 62, 0.18); transform: translateY(-1px); }
-        .btn-secondary { background: #f3f4f6; color: #111827; border: 1px solid var(--border); }
-        .btn-danger { background: #dc2626; color: #fff; }
-
-        .search-box { display: flex; gap: 10px; align-items: center; }
-        .search-box input { flex: 1; background: #f9fafb; }
-
-        table { width: 100%; border-collapse: collapse; margin-top: 18px; }
-        table thead { background: #f9fafb; border: 1px solid var(--border); }
-        table th { text-align: left; padding: 12px 12px; font-size: 13px; color: #4b5563; }
-        table td { padding: 14px 12px; border-bottom: 1px solid var(--border); font-size: 15px; }
-        table tbody tr:hover { background: #fdf2f4; }
-
-        .badge { display: inline-flex; padding: 6px 12px; border-radius: 999px; font-weight: 700; font-size: 13px; }
-        .role-admin { background: rgba(214, 31, 62, 0.12); color: var(--primary); }
-        .role-manager { background: rgba(252, 211, 77, 0.3); color: #92400e; }
-        .role-employee { background: rgba(59, 130, 246, 0.15); color: #1d4ed8; }
-        .role-hr { background: rgba(99, 102, 241, 0.18); color: #4338ca; }
-
-        .status-active { color: #16a34a; font-weight: 700; }
-        .status-inactive { color: #d97706; font-weight: 700; }
-        .status-suspended { color: #dc2626; font-weight: 700; }
-
-        .empty {
-            padding: 28px;
-            text-align: center;
-            color: var(--muted);
-            background: #f9fafb;
-            border: 1px dashed var(--border);
-            border-radius: 12px;
-        }
-
-        .alert { padding: 14px 16px; border-radius: 12px; margin-bottom: 12px; font-weight: 700; }
-        .alert-success { background: #ecfdf3; color: #166534; border: 1px solid #bbf7d0; }
-        .alert-error { background: #fef2f2; color: #b91c1c; border: 1px solid #fecaca; }
-
-        .modal {
-            display: none;
-            position: fixed;
-            inset: 0;
-            background: rgba(0, 0, 0, 0.4);
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-        .modal.show { display: flex; }
-        .modal-content {
-            background: #fff;
-            border-radius: var(--radius);
-            padding: 22px;
-            box-shadow: var(--shadow);
-            width: 100%;
-            max-width: 460px;
-            border: 1px solid var(--border);
-        }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; font-weight: 700; color: #111827; }
-        .close-btn { background: none; border: none; font-size: 20px; cursor: pointer; color: var(--muted); }
-
-        @media (max-width: 900px) {
-            body { padding: 20px; }
-            .grid { grid-template-columns: 1fr; }
-        }
-
-        @media (max-width: 640px) {
-            .topbar { flex-wrap: wrap; }
-            .nav-links { width: 100%; justify-content: space-between; }
-            .form-grid { grid-template-columns: 1fr; }
-            .search-box { flex-direction: column; align-items: stretch; }
-        }
-    </style>
+    <link rel="stylesheet" href="admin_users.css">
 </head>
 <body>
     <div class="shell">
