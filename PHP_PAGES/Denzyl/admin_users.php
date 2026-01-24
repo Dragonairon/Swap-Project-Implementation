@@ -50,7 +50,7 @@ if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
 // ============================================
 // Verify user has admin role
 if (!isset($_SESSION['role']) || $_SESSION['role'] !== 'admin') {
-    // User does not have admin privileges
+    header('Location: index.php?error=unauthorized');
     exit();
 }
 
