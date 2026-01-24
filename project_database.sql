@@ -349,7 +349,7 @@ INSERT INTO `users` (`user_id`, `username`, `password_hash`, `email`, `role`, `s
 -- Table structure for table `individual_table_requests`
 --
 
-CREATE TABLE IF NOT EXISTS `individual_table_requests` (
+CREATE TABLE `individual_table_requests` (
   `leave_id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `leave_type` varchar(50) NOT NULL,
