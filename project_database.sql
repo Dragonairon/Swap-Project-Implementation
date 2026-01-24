@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 21, 2026 at 07:26 AM
+-- Generation Time: Jan 24, 2026 at 08:24 AM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.1.25
 
@@ -164,7 +164,59 @@ INSERT INTO `hr_actions` (`action_id`, `hr_user_id`, `record_type`, `record_id`,
 (119, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:24:46', 'rejected', 'approved', 1),
 (120, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:25:06', 'approved', 'rejected', 1),
 (121, 2, 'mc', 123, 'edit', '0', '2026-01-21 06:25:13', 'rejected', 'unapproved', 1),
-(122, 2, 'mc', 123, 'approve', NULL, '2026-01-21 06:25:17', 'unapproved', 'approved', 1);
+(122, 2, 'mc', 123, 'approve', NULL, '2026-01-21 06:25:17', 'unapproved', 'approved', 1),
+(123, 2, 'mc', 123, 'edit', '0', '2026-01-21 09:31:10', 'approved', 'rejected', 1),
+(124, 2, 'mc', 123, 'edit', '0', '2026-01-21 09:31:37', 'rejected', 'approved', 1),
+(125, 2, 'mc', 123, 'edit', '0', '2026-01-21 09:31:57', 'approved', 'rejected', 1),
+(126, 2, 'mc', 123, 'edit', '0', '2026-01-21 09:35:56', 'rejected', 'unapproved', 1),
+(127, 2, 'mc', 123, 'reject', NULL, '2026-01-24 03:50:55', 'unapproved', 'rejected', 1),
+(128, 2, 'mc', 123, 'edit', '0', '2026-01-24 03:51:04', 'rejected', 'approved', 1),
+(129, 2, 'mc', 123, 'edit', '0', '2026-01-24 03:53:32', 'approved', 'approved', 1),
+(130, 2, 'mc', 123, 'edit', '0', '2026-01-24 03:53:44', 'approved', 'approved', 1),
+(131, 2, 'mc', 123, 'edit', '0', '2026-01-24 03:54:59', 'approved', 'approved', 1),
+(132, 2, 'mc', 123, 'edit', '0', '2026-01-24 03:55:08', 'approved', 'rejected', 1),
+(133, 2, 'mc', 123, 'edit', '0', '2026-01-24 03:55:12', 'rejected', 'unapproved', 1),
+(134, 2, 'mc', 123, 'edit', '0', '2026-01-24 04:00:32', 'unapproved', 'unapproved', 1),
+(135, 2, 'mc', 123, 'edit', '0', '2026-01-24 04:03:36', 'unapproved', 'unapproved', 1),
+(136, 2, 'mc', 123, 'edit', '0', '2026-01-24 04:05:00', 'unapproved', 'unapproved', 1),
+(137, 2, 'mc', 123, 'edit', '0', '2026-01-24 04:07:24', 'unapproved', 'unapproved', 1),
+(138, 2, 'mc', 123, 'edit', '0', '2026-01-24 04:09:53', 'unapproved', 'unapproved', 1),
+(139, 2, 'mc', 123, 'edit', '0', '2026-01-24 04:10:07', 'unapproved', 'unapproved', 1),
+(140, 2, 'mc', 123, 'edit', '0', '2026-01-24 04:10:35', 'unapproved', 'unapproved', 1),
+(141, 2, 'mc', 123, 'edit', '0', '2026-01-24 04:12:10', 'unapproved', 'unapproved', 1),
+(142, 2, 'mc', 123, 'edit', '0', '2026-01-24 04:13:12', 'unapproved', 'unapproved', 1),
+(143, 2, 'mc', 123, 'edit', '0', '2026-01-24 04:14:30', 'unapproved', 'unapproved', 1),
+(144, 2, 'leave', 2, 'approve', '0', '2026-01-24 04:14:54', 'unapproved', 'approved', 1),
+(145, 2, 'mc', 123, 'reject', NULL, '2026-01-24 04:14:58', 'unapproved', 'rejected', 1),
+(146, 2, 'mc', 123, 'reject', NULL, '2026-01-24 04:16:30', 'rejected', 'rejected', 1),
+(147, 2, 'mc', 123, 'reject', NULL, '2026-01-24 04:17:32', 'rejected', 'rejected', 1),
+(148, 2, 'mc', 123, 'reject', NULL, '2026-01-24 04:20:21', 'rejected', 'rejected', 1),
+(149, 2, 'mc', 123, 'reject', NULL, '2026-01-24 04:20:26', 'rejected', 'rejected', 1),
+(150, 2, 'mc', 30, 'reject', NULL, '2026-01-24 04:54:23', 'unapproved', 'rejected', 1),
+(151, 2, 'mc', 30, 'edit', '0', '2026-01-24 04:54:30', 'rejected', 'approved', 1),
+(152, 2, 'mc', 30, 'edit', '0', '2026-01-24 04:55:23', 'approved', 'approved', 1),
+(153, 2, 'mc', 30, 'edit', '0', '2026-01-24 04:55:41', 'approved', 'approved', 1),
+(154, 2, 'leave', 30, 'approve', '0', '2026-01-24 04:56:04', 'unapproved', 'approved', 1),
+(155, 2, 'leave', 30, 'edit', '0', '2026-01-24 04:56:11', 'approved', 'unapproved', 1),
+(156, 2, 'leave', 30, 'reject', '0', '2026-01-24 04:56:20', 'unapproved', 'rejected', 1),
+(157, 2, 'leave', 30, 'edit', '0', '2026-01-24 04:56:23', 'rejected', 'unapproved', 1),
+(158, 2, 'leave', 30, 'approve', '0', '2026-01-24 04:56:26', 'unapproved', 'approved', 1),
+(159, 2, 'leave', 30, 'edit', '0', '2026-01-24 04:56:30', 'approved', 'unapproved', 1),
+(160, 2, 'mc', 30, 'edit', '0', '2026-01-24 06:26:51', 'approved', 'unapproved', 1),
+(161, 2, 'mc', 30, 'reject', NULL, '2026-01-24 06:26:57', 'unapproved', 'rejected', 1),
+(162, 2, 'leave', 30, 'approve', '0', '2026-01-24 06:27:03', 'unapproved', 'approved', 1),
+(163, 2, 'leave', 30, 'edit', '0', '2026-01-24 06:27:12', 'approved', 'rejected', 1),
+(164, 2, 'leave', 30, 'edit', '0', '2026-01-24 06:27:19', 'rejected', 'rejected', 1),
+(165, 2, 'leave', 30, 'edit', '0', '2026-01-24 06:27:24', 'rejected', 'unapproved', 1),
+(166, 3, 'leave', 2, 'edit', '0', '2026-01-24 06:51:08', 'approved', 'rejected', 3),
+(167, 3, 'leave', 30, 'reject', '0', '2026-01-24 06:51:15', 'unapproved', 'rejected', 3),
+(168, 3, 'leave', 2, 'edit', '0', '2026-01-24 06:51:19', 'rejected', 'unapproved', 3),
+(169, 2, 'leave', 2, 'approve', '0', '2026-01-24 06:52:04', 'unapproved', 'approved', 2),
+(170, 3, 'leave', 2, 'edit', '0', '2026-01-24 06:52:25', 'approved', 'unapproved', 3),
+(171, 3, 'leave', 30, 'edit', '0', '2026-01-24 06:52:29', 'rejected', 'unapproved', 3),
+(172, 2, 'leave', 2, 'approve', '0', '2026-01-24 06:52:42', 'unapproved', 'approved', 2),
+(173, 2, 'leave', 30, 'reject', '0', '2026-01-24 06:52:47', 'unapproved', 'rejected', 2),
+(174, 3, 'leave', 2, 'edit', '0', '2026-01-24 06:56:38', 'approved', 'unapproved', 3);
 
 -- --------------------------------------------------------
 
@@ -183,6 +235,14 @@ CREATE TABLE `leave_requests` (
   `submitted_at` int(11) NOT NULL,
   `approved_at` int(11) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
+
+--
+-- Dumping data for table `leave_requests`
+--
+
+INSERT INTO `leave_requests` (`leave_id`, `user_id`, `leave_type`, `start_date`, `end_date`, `reason`, `status`, `submitted_at`, `approved_at`) VALUES
+(2, 4, 1, 12, 221, '', 'unapproved', 9, 0),
+(30, 4, 1, 12, 221, '', 'rejected', 9, 10);
 
 -- --------------------------------------------------------
 
@@ -252,7 +312,8 @@ CREATE TABLE `mc_records` (
 --
 
 INSERT INTO `mc_records` (`mc_id`, `user_id`, `clinic_name`, `start_date`, `end_date`, `mc_file_path`, `mime_type`, `verification_status`, `submitted_at`, `verified_at`) VALUES
-(123, 1, 123, 111, 222, 123, 123, 'approved', 213, 0);
+(30, 3, 123, 1, 1, 233, 1, 'rejected', 1, 4),
+(123, 1, 123, 111, 222, 123, 123, 'rejected', 213, 0);
 
 -- --------------------------------------------------------
 
@@ -279,7 +340,7 @@ INSERT INTO `users` (`user_id`, `username`, `password_hash`, `email`, `role`, `s
 (1, 'irfan', '$2y$10$ABVecqDGf1lBLXPyhK19cutjQ368jRjEt89sHmtk4NvPZEs5nOJKe', 'irfan@test.com', 'admin', 'active', '2026-01-14 03:25:49', '2026-01-14 03:25:49'),
 (2, 'javier', '$2y$10$ABVecqDGf1lBLXPyhK19cutjQ368jRjEt89sHmtk4NvPZEs5nOJKe', 'javier@test.com', 'hr', 'active', '2026-01-14 17:06:55', '2026-01-14 17:06:55'),
 (3, 'testemployee1', '$2y$10$CpQ1qBbXWs4UsvZrk5wFR.dEH0VQ6qdSCI0F5xGSy3dJZn/4YguTm', 'abc@test.com', 'employee', 'active', '2026-01-21 06:20:59', '2026-01-21 06:20:59'),
-(4, 'testmanager1', '$2y$10$cKerb404bvj5O9dYC3RkU.ZgeQtfWQj1/sFYKK8LT0E0Q/dqCVe.2', 'asdf@test.com', 'manager', 'active', '2026-01-21 06:22:05', '2026-01-21 06:22:05');
+(4, 'testmanager1', '$2y$10$cKerb404bvj5O9dYC3RkU.ZgeQtfWQj1/sFYKK8LT0E0Q/dqCVe.2', 'asdf@test.com', 'manager', 'inactive', '2026-01-21 06:22:05', '2026-01-21 09:33:46');
 
 --
 -- Indexes for dumped tables
@@ -329,13 +390,13 @@ ALTER TABLE `users`
 -- AUTO_INCREMENT for table `hr_actions`
 --
 ALTER TABLE `hr_actions`
-  MODIFY `action_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=123;
+  MODIFY `action_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=175;
 
 --
 -- AUTO_INCREMENT for table `leave_requests`
 --
 ALTER TABLE `leave_requests`
-  MODIFY `leave_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=2;
+  MODIFY `leave_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
 
 --
 -- AUTO_INCREMENT for table `login_attempts`
@@ -363,21 +424,3 @@ COMMIT;
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
 /*!40101 SET CHARACTER_SET_RESULTS=@OLD_CHARACTER_SET_RESULTS */;
 /*!40101 SET COLLATION_CONNECTION=@OLD_COLLATION_CONNECTION */;
-
--- Table structure for table `individual_table_requests`
-CREATE TABLE IF NOT EXISTS `individual_table_requests` (
-  `leave_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `leave_type` varchar(50) NOT NULL,
-  `leave_id` int(11) NOT NULL,
-  `start_date` date NOT NULL,
-  `end_date` date NOT NULL,
-  `reason` text NOT NULL,
-  `status` varchar(20) DEFAULT 'unapproved',
-  `submitted_at` timestamp NOT NULL DEFAULT current_timstamp(),
-  PRIMARY_KEY (`leave_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
--- Dumping sample data for table `individual_table_requests`
-INSERT INTO `individual_table_requests` (`user_id`, `leave_type`, `start_date`, `end_date`, `reason`, `status`)
-VALUES (654321, 'Annual', '2026-02-01', '2026-02-05', 'Individual Test', 'unnapproved');
