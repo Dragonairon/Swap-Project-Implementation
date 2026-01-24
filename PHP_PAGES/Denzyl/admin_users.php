@@ -39,7 +39,7 @@ if ($conn->connect_error) {
 // ACCESS CONTROL: Authentication Check
 // ============================================
 // Verify user is logged in
-if (!isset($_SESSION['user_id']) || !isset($_SESSION['username'])) {
+if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
     // User is not authenticated - redirect to login
     header('Location: ../Javier/login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
     exit();
