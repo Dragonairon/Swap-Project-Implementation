@@ -342,32 +342,6 @@ INSERT INTO `users` (`user_id`, `username`, `password_hash`, `email`, `role`, `s
 (3, 'testemployee1', '$2y$10$CpQ1qBbXWs4UsvZrk5wFR.dEH0VQ6qdSCI0F5xGSy3dJZn/4YguTm', 'abc@test.com', 'employee', 'active', '2026-01-21 06:20:59', '2026-01-21 06:20:59'),
 (4, 'testmanager1', '$2y$10$cKerb404bvj5O9dYC3RkU.ZgeQtfWQj1/sFYKK8LT0E0Q/dqCVe.2', 'asdf@test.com', 'manager', 'inactive', '2026-01-21 06:22:05', '2026-01-21 09:33:46');
 
-
-
-
---
--- Table structure for table `individual_table_requests`
---
-
-CREATE TABLE `individual_table_requests` (
-  `leave_id` int(11) NOT NULL AUTO_INCREMENT,
-  `user_id` int(11) NOT NULL,
-  `leave_type` varchar(50) NOT NULL,
-  `leave_id` int(11) NOT NULL,
-  `start_date` date NOT NULL,
-  `end_date` date NOT NULL,
-  `reason` text NOT NULL,
-  `status` varchar(20) DEFAULT 'unapproved',
-  `submitted_at` timestamp NOT NULL DEFAULT current_timestamp(),
-  PRIMARY_KEY (`leave_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
-
---
--- Dumping sample data for table `individual_table_requests`
---
-INSERT INTO `individual_table_requests` (`user_id`, `leave_type`, `start_date`, `end_date`, `reason`, `status`) VALUES
-(654321, 'Annual', '2026-02-01', '2026-02-05', 'Individual Test', 'unnapproved');
-
 --
 -- Indexes for dumped tables
 --
