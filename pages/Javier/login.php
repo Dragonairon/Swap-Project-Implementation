@@ -231,6 +231,7 @@ if (isset($_GET['expired'])) {
         <div class="login-header">
             <h1>HR System</h1>
             <p>Test Login</p>
+            <p><strong>Don't use this. Replace with Irfan's login.php</strong></p>
         </div>
 
         <?php if (!empty($error)): ?>
