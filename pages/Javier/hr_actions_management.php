@@ -1,10 +1,9 @@
 <?php
 // Configure session settings BEFORE session_start()
-session_name('HRSESSION');
 ini_set('session.cookie_httponly', 1);
 ini_set('session.cookie_samesite', 'Strict');
 
-session_start();
+if (session_status() === PHP_SESSION_NONE) session_start();
 
 // Database configuration
 $db_host = 'localhost';
@@ -25,7 +24,7 @@ require_once 'hr_actions.php';
 
 // Authentication check - ensure user is logged in
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
-    header('Location: login.php');
+    header('Location: ../Irfan/login+logout+homepage/login.php');
     exit;
 }
 

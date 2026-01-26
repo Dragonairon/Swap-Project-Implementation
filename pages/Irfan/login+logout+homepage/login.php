@@ -121,6 +121,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       exit;
     }
 
+    // Lock has expired, reset fail_count for fresh attempts
+    if (!empty($state['lock_until']) && strtotime($state['lock_until']) <= time()) {
+      $state['fail_count'] = 0;
+    }
+
     // ===================== BEFORE (VULNERABLE) ============================
     // try {
     //   $sql = "SELECT user_id, username, password_hash, role, status

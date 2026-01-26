@@ -3,9 +3,9 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 24, 2026 at 08:24 AM
+-- Generation Time: Jan 26, 2026 at 05:05 PM
 -- Server version: 10.4.32-MariaDB
--- PHP Version: 8.1.25
+-- PHP Version: 8.2.12
 
 SET SQL_MODE = "NO_AUTO_VALUE_ON_ZERO";
 START TRANSACTION;
@@ -216,7 +216,9 @@ INSERT INTO `hr_actions` (`action_id`, `hr_user_id`, `record_type`, `record_id`,
 (171, 3, 'leave', 30, 'edit', '0', '2026-01-24 06:52:29', 'rejected', 'unapproved', 3),
 (172, 2, 'leave', 2, 'approve', '0', '2026-01-24 06:52:42', 'unapproved', 'approved', 2),
 (173, 2, 'leave', 30, 'reject', '0', '2026-01-24 06:52:47', 'unapproved', 'rejected', 2),
-(174, 3, 'leave', 2, 'edit', '0', '2026-01-24 06:56:38', 'approved', 'unapproved', 3);
+(174, 3, 'leave', 2, 'edit', '0', '2026-01-24 06:56:38', 'approved', 'unapproved', 3),
+(0, 0, 'leave', 2, 'approve', '0', '2026-01-26 16:01:46', 'unapproved', 'approved', 0),
+(0, 0, 'leave', 2, 'edit', '0', '2026-01-26 16:01:52', 'approved', 'unapproved', 0);
 
 -- --------------------------------------------------------
 
@@ -286,7 +288,25 @@ INSERT INTO `login_attempts` (`attempt_id`, `user_id`, `username_entered`, `succ
 (19, 1, 'irfan', 0, 3, '2026-01-14 17:57:09', '2026-01-15 00:57:04'),
 (20, 1, 'irfan', 1, 0, NULL, '2026-01-15 00:57:22'),
 (21, 2, 'javier', 0, 1, NULL, '2026-01-15 01:07:23'),
-(22, 2, 'javier', 1, 0, NULL, '2026-01-15 01:07:34');
+(22, 2, 'javier', 1, 0, NULL, '2026-01-15 01:07:34'),
+(0, 2, 'javier', 0, 1, NULL, '2026-01-26 22:56:15'),
+(0, 4, 'testmanager1', 0, 0, NULL, '2026-01-26 22:56:23'),
+(0, 3, 'testemployee1', 1, 0, NULL, '2026-01-26 22:56:31'),
+(0, 2, 'javier', 0, 2, NULL, '2026-01-26 23:05:06'),
+(0, 2, 'javier', 0, 3, '2026-01-26 23:31:55', '2026-01-26 23:15:15'),
+(0, 1, 'irfan', 1, 0, NULL, '2026-01-26 23:33:08'),
+(0, 1, 'irfan', 1, 0, NULL, '2026-01-26 23:35:27'),
+(0, 1, 'irfan', 1, 0, NULL, '2026-01-26 23:42:25'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-26 23:43:06'),
+(0, 0, 'testhr1', 0, 1, NULL, '2026-01-26 23:45:26'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-26 23:45:37'),
+(0, 1, 'irfan', 1, 0, NULL, '2026-01-26 23:47:16'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-26 23:56:28'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-26 23:58:32'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-26 23:59:22'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-26 23:59:36'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-26 23:59:59'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-27 00:01:40');
 
 -- --------------------------------------------------------
 
@@ -340,85 +360,8 @@ INSERT INTO `users` (`user_id`, `username`, `password_hash`, `email`, `role`, `s
 (1, 'irfan', '$2y$10$ABVecqDGf1lBLXPyhK19cutjQ368jRjEt89sHmtk4NvPZEs5nOJKe', 'irfan@test.com', 'admin', 'active', '2026-01-14 03:25:49', '2026-01-14 03:25:49'),
 (2, 'javier', '$2y$10$ABVecqDGf1lBLXPyhK19cutjQ368jRjEt89sHmtk4NvPZEs5nOJKe', 'javier@test.com', 'hr', 'active', '2026-01-14 17:06:55', '2026-01-14 17:06:55'),
 (3, 'testemployee1', '$2y$10$CpQ1qBbXWs4UsvZrk5wFR.dEH0VQ6qdSCI0F5xGSy3dJZn/4YguTm', 'abc@test.com', 'employee', 'active', '2026-01-21 06:20:59', '2026-01-21 06:20:59'),
-(4, 'testmanager1', '$2y$10$cKerb404bvj5O9dYC3RkU.ZgeQtfWQj1/sFYKK8LT0E0Q/dqCVe.2', 'asdf@test.com', 'manager', 'inactive', '2026-01-21 06:22:05', '2026-01-21 09:33:46');
-
---
--- Indexes for dumped tables
---
-
---
--- Indexes for table `hr_actions`
---
-ALTER TABLE `hr_actions`
-  ADD PRIMARY KEY (`action_id`),
-  ADD KEY `user_agent` (`user_agent`);
-
---
--- Indexes for table `leave_requests`
---
-ALTER TABLE `leave_requests`
-  ADD PRIMARY KEY (`leave_id`);
-
---
--- Indexes for table `login_attempts`
---
-ALTER TABLE `login_attempts`
-  ADD PRIMARY KEY (`attempt_id`),
-  ADD KEY `idx_login_attempts_user_id` (`user_id`),
-  ADD KEY `idx_login_attempts_username` (`username_entered`),
-  ADD KEY `idx_login_attempts_attempt_time` (`attempt_time`);
-
---
--- Indexes for table `mc_records`
---
-ALTER TABLE `mc_records`
-  ADD PRIMARY KEY (`mc_id`);
-
---
--- Indexes for table `users`
---
-ALTER TABLE `users`
-  ADD PRIMARY KEY (`user_id`),
-  ADD UNIQUE KEY `uq_users_username` (`username`),
-  ADD UNIQUE KEY `uq_users_email` (`email`);
-
---
--- AUTO_INCREMENT for dumped tables
---
-
---
--- AUTO_INCREMENT for table `hr_actions`
---
-ALTER TABLE `hr_actions`
-  MODIFY `action_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=175;
-
---
--- AUTO_INCREMENT for table `leave_requests`
---
-ALTER TABLE `leave_requests`
-  MODIFY `leave_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=31;
-
---
--- AUTO_INCREMENT for table `login_attempts`
---
-ALTER TABLE `login_attempts`
-  MODIFY `attempt_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=23;
-
---
--- AUTO_INCREMENT for table `users`
---
-ALTER TABLE `users`
-  MODIFY `user_id` int(11) NOT NULL AUTO_INCREMENT, AUTO_INCREMENT=5;
-
---
--- Constraints for dumped tables
---
-
---
--- Constraints for table `hr_actions`
---
-ALTER TABLE `hr_actions`
-  ADD CONSTRAINT `fk_user_id` FOREIGN KEY (`user_agent`) REFERENCES `users` (`user_id`) ON DELETE CASCADE;
+(4, 'testmanager1', '$2y$10$cKerb404bvj5O9dYC3RkU.ZgeQtfWQj1/sFYKK8LT0E0Q/dqCVe.2', 'asdf@test.com', 'manager', 'inactive', '2026-01-21 06:22:05', '2026-01-21 09:33:46'),
+(0, 'testhr1', '$2y$10$83JlhIZ.ese3FSh.oqEcnuiuXcE6wbsD/THBpxrgOpMwRJeEm3pbG', 'qwe@test.com', 'hr', 'active', '2026-01-26 15:42:47', '2026-01-26 15:42:47');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
