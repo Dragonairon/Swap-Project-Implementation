@@ -18,8 +18,10 @@ SET time_zone = "+00:00";
 /*!40101 SET NAMES utf8mb4 */;
 
 --
--- Database: `project_database`
+-- Database: `tpamc_database`
 --
+CREATE DATABASE IF NOT EXISTS `tpamc_database` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
+USE `tpamc_database`;
 
 -- --------------------------------------------------------
 
