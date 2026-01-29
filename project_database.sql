@@ -3,7 +3,7 @@
 -- https://www.phpmyadmin.net/
 --
 -- Host: 127.0.0.1
--- Generation Time: Jan 26, 2026 at 05:05 PM
+-- Generation Time: Jan 29, 2026 at 06:51 PM
 -- Server version: 10.4.32-MariaDB
 -- PHP Version: 8.2.12
 
@@ -20,8 +20,6 @@ SET time_zone = "+00:00";
 --
 -- Database: `tpamc_database`
 --
-CREATE DATABASE IF NOT EXISTS `tpamc_database` DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_general_ci;
-USE `tpamc_database`;
 
 -- --------------------------------------------------------
 
@@ -231,13 +229,13 @@ INSERT INTO `hr_actions` (`action_id`, `hr_user_id`, `record_type`, `record_id`,
 CREATE TABLE `leave_requests` (
   `leave_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `leave_type` int(11) NOT NULL,
-  `start_date` int(11) NOT NULL,
-  `end_date` int(11) NOT NULL,
+  `leave_type` varchar(50) NOT NULL,
+  `start_date` date NOT NULL,
+  `end_date` date NOT NULL,
   `reason` text DEFAULT NULL,
   `status` enum('approved','rejected','unapproved') NOT NULL DEFAULT 'unapproved',
-  `submitted_at` int(11) NOT NULL,
-  `approved_at` int(11) NOT NULL
+  `submitted_at` timestamp NOT NULL DEFAULT current_timestamp(),
+  `approved_at` timestamp NULL DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
 
 --
@@ -245,8 +243,8 @@ CREATE TABLE `leave_requests` (
 --
 
 INSERT INTO `leave_requests` (`leave_id`, `user_id`, `leave_type`, `start_date`, `end_date`, `reason`, `status`, `submitted_at`, `approved_at`) VALUES
-(2, 4, 1, 12, 221, '', 'unapproved', 9, 0),
-(30, 4, 1, 12, 221, '', 'rejected', 9, 10);
+(2, 4, '1', '0000-00-00', '2000-02-21', '', 'unapproved', '0000-00-00 00:00:00', '0000-00-00 00:00:00'),
+(30, 4, '1', '0000-00-00', '2000-02-21', '', 'rejected', '0000-00-00 00:00:00', '0000-00-00 00:00:00');
 
 -- --------------------------------------------------------
 
@@ -308,7 +306,31 @@ INSERT INTO `login_attempts` (`attempt_id`, `user_id`, `username_entered`, `succ
 (0, 0, 'testhr1', 1, 0, NULL, '2026-01-26 23:59:22'),
 (0, 0, 'testhr1', 1, 0, NULL, '2026-01-26 23:59:36'),
 (0, 0, 'testhr1', 1, 0, NULL, '2026-01-26 23:59:59'),
-(0, 0, 'testhr1', 1, 0, NULL, '2026-01-27 00:01:40');
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-27 00:01:40'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 00:42:13'),
+(0, 1, 'irfan', 1, 0, NULL, '2026-01-30 00:52:51'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 01:10:44'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 01:15:45'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 01:15:59'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 01:16:13'),
+(0, 1, 'irfan', 1, 0, NULL, '2026-01-30 01:16:33'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 01:18:07'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 01:21:07'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 01:21:20'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 01:23:43'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 01:24:15'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 01:25:27'),
+(0, 1, 'irfan', 1, 0, NULL, '2026-01-30 01:25:46'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 01:26:27'),
+(0, 1, 'irfan', 1, 0, NULL, '2026-01-30 01:35:31'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 01:38:06'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 01:41:26'),
+(0, 1, 'irfan', 1, 0, NULL, '2026-01-30 01:41:38'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 01:45:04'),
+(0, 2, 'javier', 1, 0, NULL, '2026-01-30 01:45:31'),
+(0, 0, 'testhr1', 1, 0, NULL, '2026-01-30 01:45:57'),
+(0, 2, 'javier', 1, 0, NULL, '2026-01-30 01:46:29'),
+(0, 5, 'testhr1', 1, 0, NULL, '2026-01-30 01:49:01');
 
 -- --------------------------------------------------------
 
@@ -363,7 +385,7 @@ INSERT INTO `users` (`user_id`, `username`, `password_hash`, `email`, `role`, `s
 (2, 'javier', '$2y$10$ABVecqDGf1lBLXPyhK19cutjQ368jRjEt89sHmtk4NvPZEs5nOJKe', 'javier@test.com', 'hr', 'active', '2026-01-14 17:06:55', '2026-01-14 17:06:55'),
 (3, 'testemployee1', '$2y$10$CpQ1qBbXWs4UsvZrk5wFR.dEH0VQ6qdSCI0F5xGSy3dJZn/4YguTm', 'abc@test.com', 'employee', 'active', '2026-01-21 06:20:59', '2026-01-21 06:20:59'),
 (4, 'testmanager1', '$2y$10$cKerb404bvj5O9dYC3RkU.ZgeQtfWQj1/sFYKK8LT0E0Q/dqCVe.2', 'asdf@test.com', 'manager', 'inactive', '2026-01-21 06:22:05', '2026-01-21 09:33:46'),
-(0, 'testhr1', '$2y$10$83JlhIZ.ese3FSh.oqEcnuiuXcE6wbsD/THBpxrgOpMwRJeEm3pbG', 'qwe@test.com', 'hr', 'active', '2026-01-26 15:42:47', '2026-01-26 15:42:47');
+(5, 'testhr1', '$2y$10$83JlhIZ.ese3FSh.oqEcnuiuXcE6wbsD/THBpxrgOpMwRJeEm3pbG', 'qwe@test.com', 'hr', 'active', '2026-01-26 15:42:47', '2026-01-29 17:48:42');
 COMMIT;
 
 /*!40101 SET CHARACTER_SET_CLIENT=@OLD_CHARACTER_SET_CLIENT */;
