@@ -14,7 +14,7 @@ $navRole = $_SESSION['role'] ?? null;
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title><?= e($title ?? 'TP AMC') ?></title>
-  <link rel="stylesheet" href="<?= BASE_URL ?>/pages/Irfan/css/style.css">
+  <link rel="stylesheet" href="<?= BASE_URL ?>pages/Irfan/css/style.css">
 </head>
 <body>
 

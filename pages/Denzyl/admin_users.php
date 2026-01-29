@@ -25,7 +25,7 @@ header("Pragma: no-cache");
 $db_host = 'localhost';
 $db_user = 'root';
 $db_password = '';
-$db_name = 'project_database';
+$db_name = 'tpamc_database';
 
 // Create connection
 $conn = new mysqli($db_host, $db_user, $db_password, $db_name);
@@ -41,7 +41,7 @@ if ($conn->connect_error) {
 // Verify user is logged in
 if (!isset($_SESSION['user_id']) || !isset($_SESSION['role'])) {
     // User is not authenticated - redirect to login
-    header('Location: ../Javier/login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
+    header('Location: ../Irfan/login+logout+homepage/login.php?redirect=' . urlencode($_SERVER['REQUEST_URI']));
     exit();
 }
 
@@ -351,11 +351,11 @@ $conn->close();
                 </div>
             </div>
             <div class="nav-links">
-                <a href="#">Home</a>
-                <a href="#">Admin</a>
-                <a href="#">Logs</a>
-                <a href="#">Locked Accounts</a>
-                <a class="logout" href="#">Logout</a>
+                <a href="/tpamc/pages/Irfan/login+logout+homepage/homepage.php">Home</a>
+                <a href="/tpamc/pages/Denzyl/admin_users.php">Admin</a>
+                <a href="/tpamc/pages/Irfan/logs/logs.php">Logs</a>
+                <a href="/tpamc/pages/Irfan/locked_accounts/locked_accounts_admin_secure.php">Locked Accounts</a>
+                <a class="logout" href="/tpamc/pages/Irfan/login+logout+homepage/logout.php">Logout</a>
             </div>
         </div>
 
@@ -493,8 +493,8 @@ $conn->close();
             <div class="card-title">Security Monitoring</div>
             <div class="card-subtitle">View logs and manage locked accounts (Admin unlock).</div>
             <div class="actions-row" style="margin-top: 18px;">
-                <a href="#"><button type="button" class="btn btn-primary">View Logs</button></a>
-                <a href="#"><button type="button" class="btn btn-primary">Locked Accounts</button></a>
+                <a href="/tpamc/pages/Irfan/logs/logs.php"><button type="button" class="btn btn-primary">View Logs</button></a>
+                <a href="/tpamc/pages/Irfan/locked_accounts/locked_accounts_admin_secure.php"><button type="button" class="btn btn-primary">Locked Accounts</button></a>
             </div>
         </div>
     </div>

@@ -1,6 +1,6 @@
 <?php
 // Must end with trailing slash
-define('BASE_URL', '/tpamc/');
+define('BASE_URL', '/');
 
 // Absolute filesystem root for includes
 define('PROJECT_ROOT', dirname(__DIR__));

@@ -184,7 +184,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
       if ($user['role'] === 'admin') redirect_to('pages/Denzyl/admin_users.php');
       if ($user['role'] === 'hr') redirect_to('pages/Javier/hr_actions_management.php');
       if ($user['role'] === 'employee') redirect_to('pages/Irfan/xxx');
-      redirect_to('pages/Irfan/login+logout+homepage/homepage.php');
+      redirect_to('/pages/Irfan/login+logout+homepage/homepage.php');
 
     } else {
 

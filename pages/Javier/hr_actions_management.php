@@ -112,7 +112,7 @@ $workforce_availability = $workforce_result['success'] ? $workforce_result['data
                 <a href="#">HR</a>
                 <a href="#">Logs</a>
                 <a href="#">Locked Accounts</a>
-                <a href="logout.php" class="logout">Logout</a>
+                <a href="\pages\Irfan\login+logout+homepage\logout.php" class="logout">Logout</a>
             </div>
         </div>
 

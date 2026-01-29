@@ -10,10 +10,10 @@ define('BASE_URL', 'http://' . $host . $base); // defines base url for project
 define('DB_HOST', 'localhost'); // localhost db
 define('DB_USER', 'root'); // username db
 define('DB_PASS', ''); // password db to be filled in
-define('DB_NAME', 'project_database'); // database name for project db
+define('DB_NAME', 'tpamc_database'); // database name for project db
 
 // To follow the group's SQL file & syntax
-define('DB_NAME', 'project_database');
+define('DB_NAME', 'tpamc_database');
 
 // new mysqli object for OOP connection & secret handshake to project db
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
