@@ -1,13 +1,7 @@
 <?php
 
-// Session timeout and regeneration (only executed after session is started)
+// Session timeout check (only executed after session is started)
 if (session_status() === PHP_SESSION_ACTIVE) {
-    // Regenerate session ID on first request
-    if (!isset($_SESSION['_regenerated'])) {
-        session_regenerate_id(true);
-        $_SESSION['_regenerated'] = true;
-    }
-
     // Check session timeout (30 minutes)
     if (isset($_SESSION['last_activity']) && time() - $_SESSION['last_activity'] > 1800) {
         session_destroy();

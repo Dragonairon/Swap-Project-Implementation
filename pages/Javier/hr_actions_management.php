@@ -1,7 +1,7 @@
 <?php
 // Configure session settings BEFORE session_start()
 ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_samesite', 'Lax');
+ini_set('session.cookie_samesite', 'strict');
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
@@ -108,11 +108,11 @@ $workforce_availability = $workforce_result['success'] ? $workforce_result['data
                 </div>
             </div>
             <div class="nav-links">
-                <a href="\pages\Irfan\login+logout+homepage\homepage.php">Home</a>
-                <a href="\pages\Javier\hr_actions_management.php">HR</a>
-                <a href="\pages\Irfan\logs\logs.php">Logs</a>
-                <a href="\pages\Irfan\locked_accounts\locked_accounts_hr_secure.php">Locked Accounts</a>
-                <a href="\pages\Irfan\login+logout+homepage\logout.php" class="logout">Logout</a>
+                <a href="/pages/Irfan/login+logout+homepage/homepage.php">Home</a>
+                <a href="/pages/Javier/hr_actions_management.php">HR</a>
+                <a href="/pages/Irfan/logs/logs.php">Logs</a>
+                <a href="/pages/Irfan/locked_accounts/locked_accounts_hr_secure.php">Locked Accounts</a>
+                <a href="/pages/Irfan/login+logout+homepage/logout.php" class="logout">Logout</a>
             </div>
         </div>
 
