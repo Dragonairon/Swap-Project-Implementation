@@ -351,11 +351,11 @@ $conn->close();
                 </div>
             </div>
             <div class="nav-links">
-                <a href="/tpamc/pages/Irfan/login+logout+homepage/homepage.php">Home</a>
-                <a href="/tpamc/pages/Denzyl/admin_users.php">Admin</a>
-                <a href="/tpamc/pages/Irfan/logs/logs.php">Logs</a>
-                <a href="/tpamc/pages/Irfan/locked_accounts/locked_accounts_admin_secure.php">Locked Accounts</a>
-                <a class="logout" href="/tpamc/pages/Irfan/login+logout+homepage/logout.php">Logout</a>
+                <a href="/pages/Irfan/login+logout+homepage/homepage.php">Home</a>
+                <a href="/pages/Denzyl/admin_users.php">Admin</a>
+                <a href="/pages/Irfan/logs/logs.php">Logs</a>
+                <a href="/pages/Irfan/locked_accounts/locked_accounts_admin_secure.php">Locked Accounts</a>
+                <a class="logout" href="/pages/Irfan/login+logout+homepage/logout.php">Logout</a>
             </div>
         </div>
 
