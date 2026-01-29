@@ -1,6 +1,6 @@
 <?php
 $DB_HOST = '127.0.0.1';
-$DB_NAME = 'project_database';
+$DB_NAME = 'tpamc_database';
 $DB_USER = 'root';
 $DB_PASS = '';
 $DB_PORT = 3306;
