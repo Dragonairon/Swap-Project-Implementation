@@ -1,7 +1,7 @@
 <?php
 // Configure session settings BEFORE session_start()
 ini_set('session.cookie_httponly', 1);
-ini_set('session.cookie_samesite', 'Strict');
+ini_set('session.cookie_samesite', 'Lax');
 
 if (session_status() === PHP_SESSION_NONE) session_start();
 
