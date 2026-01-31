@@ -6,9 +6,9 @@
   --bg: #f6f7fb;
   --card: #ffffff;
   --border: #e5e7eb;
-  --success: #059669; /* Added for Status */
-  --warning: #d97706; /* Added for Status */
-  --danger: #dc2626;  /* Added for Status */
+  --success: #059669; 
+  --warning: #d97706; 
+  --danger: #dc2626;  
 }
 
 * { box-sizing: border-box; }
@@ -54,23 +54,32 @@ h2 { margin-top: 0; color: var(--tp-dark); }
 
 label { display: block; font-weight: 700; margin-bottom: 8px; color: var(--tp-dark); }
 
-input[type="text"], input[type="date"], input[type="file"], input[type="number"], select {
+.form-group { margin-bottom: 20px; }
+
+/* --- INPUT FIELDS (UPDATED) --- */
+input[type="text"], 
+input[type="date"], 
+input[type="file"], 
+input[type="number"], 
+input[type="password"], /* <--- Added Password Field Here */
+select {
   width: 100%;
   padding: 12px;
   border: 1px solid var(--border);
   border-radius: 10px;
   outline: none;
   font-size: 14px;
-  transition: border-color 0.2s;
-  background: #f9fafb;
+  transition: all 0.2s;
+  background: #f9fafb; /* Light grey background */
+  color: var(--tp-dark);
 }
-input:focus {
+
+input:focus, select:focus {
   border-color: var(--tp-red);
   background: #fff;
   box-shadow: 0 0 0 4px rgba(200, 16, 46, 0.1);
 }
-
-.form-group { margin-bottom: 20px; }
+/* ------------------------------- */
 
 /* Buttons */
 .btn {
