@@ -341,7 +341,7 @@ INSERT INTO `login_attempts` (`attempt_id`, `user_id`, `username_entered`, `succ
 CREATE TABLE `mc_records` (
   `mc_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
-  `clinic_name` int(11) NOT NULL,
+  `clinic_name` varchar(255) NOT NULL,
   `start_date` int(11) NOT NULL,
   `end_date` int(11) NOT NULL,
   `mc_file_path` int(11) NOT NULL,
