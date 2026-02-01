@@ -1,45 +1,52 @@
 <?php
 session_start();
 
-// require_once make sure db_connect.php is loaded
-require_once __DIR__ . '/../db_connect.php'; // db_connect.php = config.php, so rename to config.php if there is any issues if it can't run
-//call the two other files
-include __DIR__ . '/../helper_function.php';
-include __DIR__ . '/../backend_leaveRequest.php';
+ // db_connect.php = config.php, so rename to config.php if there is any issues if it can't run
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
 
-$pageTitle = 'Apply leave';
-// Create Leave object for project db
-$leave = new leaveRequest();
+// functions, require_once is because helper function is regex and backend is to send the data to the database
+require_once __DIR__. '/helper_function.php';
+require_once __DIR__ . '/backend_leaveRequest.php';
 
-// simulated user_id 123456. In actual use, to be called when the user logged into the system
-$logged_in_user = 123456;
+$pageTitle = 'Apply Leave';
+$leave = new leaveRequest(); // Create Leave object for project db
 
-$err_msg = null;
+// In actual use, to be called when the user logged into the system
+if (!isset($_SESSION['user_id'])) {
+    header("Location: index.php");
+    exit();
+}
+
+$logged_in_user = $_SESSION['user_id']; // get user_id from session data for the use of data retrival from the backend
+$errorMsg = null;
 $success_msg = null;
 
 // Check whether that one particular user_id form submission
 if ($_SERVER["REQUEST_METHOD"] == "POST"){
-    $user_id = $_POST['user_id']; // this bit is the part that needs to have the logged in user_id, grab id from form's named input
+    $user_id = $logged_in_user; // this bit is the part that needs to have the logged in user_id, grab id from form's named input
 
-    // rate limit security check
-    if ($leave->checkTime($user_id)) {
-        $err_msg = "Error: Wait for 30 secs before resubmission";
-    }
-    
-    // Validation: Empty fields (also speaking of fields, I do want the logged in user_id's field to be automatically filled in, with the same user_id [if it's user_id 123456, then that field is obviously 123456, I wonder which part of the code needs adding that bit])
-    /*else if ($_POST['leave_type'] == "" || $_POST['start_date'] == "" || $_POST['end_date'] == "" || $_POST['reason'] == "") {
-        $err_msg = "Error: Missing fields";
-    } */
-    else {
+
         // GET data and sanitisation
         $leave_type = $_POST['leave_type'];
         $start_date= $_POST['start_date'];
         $end_date = $_POST['end_date'];
         $reason = cleanUp($_POST['reason']); 
 
-        // Clean reason/ validation
-        if (!empty($leave_type) && !empty($start_date) && !empty($end_date) && !empty($reason)) {
+        if ($leave->checkTime($user_id)) {
+        $errorMsg = "Error: Wait for 30 secs before resubmission";
+    }
+        //datecheck function
+        else if (strtotime($end_date) < strtotime($start_date)) {
+            $errorMsg = "Error: 'End date' cannot be before 'Start date'";
+        } 
 
+        //Clean reason/ validation, || for "if any fields are empty, then flag it out"
+        else if (empty($leave_type) || empty($start_date) || empty($end_date) || empty($reason)) {
+        $errorMsg = "Error: All fields are required";
+        }
+
+            else {
             // Store sanitised data in $variable
             $leave->user_id = $user_id;
             $leave->leave_type = $leave_type;
@@ -47,22 +54,13 @@ if ($_SERVER["REQUEST_METHOD"] == "POST"){
             $leave->end_date = $end_date;
             $leave->reason = $reason;
 
-            // Form submission, connection successful or error (but why? Can you explain?)
-        if ($leave->saveRequest()) {
+           if ($leave->saveRequest()) {
             $success_msg = "Success: Your form is pending";
         } else {
-            global $conn; // Declare global, knows connection from db_connect file
-            $err_msg = "Error: Could not submit form" . $conn->error;
-            }
-        } else {
-            $err_msg = "Error: Input all fields";
+            global $pdo; 
+            $errorMsg = "Error: Could not submit form";
         }
     }
-}
-
-// Close connection safely
-if (isset($conn)) {
-    $conn->close();
 }
 ?>
 
@@ -71,11 +69,11 @@ if (isset($conn)) {
 <head>
     <meta charset="UTF-8" >
     <title><?php echo $pageTitle; ?></title>
-    <link rel="stylesheet" href="<?php echo BASE_URL; ?>/css/style.css">
+    <link rel="stylesheet" href="css/style.css">
 </head>
 
-<body style = "text-align: center; font-family: sans-serif;"> <!-- This one is fine, it is just styling, right?-->
-    <?php include __DIR__ . '/../includes/header.php'; ?>
+<body style = "font-family: sans-serif; margin: 0; padding: 0;">
+    <?php include __DIR__ . '/includes/header.php'; ?>
     <main class="container">
         <div class="card" style="max-width: 500px; margin: 20px auto; padding: 20px; text-align: left;">
             <h2>Apply leave</h2>
@@ -86,8 +84,8 @@ if (isset($conn)) {
             <div class="alert alert-success" style="color: green;"><?php echo $success_msg; ?></div> 
         <?php endif; ?>
 
-        <?php if (isset($err_msg)): ?>
-            <div class="alert alert-error" style="color: red;"><?php echo $err_msg; ?></div>
+        <?php if (isset($errorMsg)): ?>
+            <div class="alert alert-error" style="color: red;"><?php echo $errorMsg; ?></div>
         <?php endif; ?>
 
         <form id="leaveForm" method = "POST" action = "" onsubmit="return validateDates()">
@@ -101,7 +99,9 @@ if (isset($conn)) {
                 <select name = "leave_type" id = "leave_type" required>
                     <option value = ""> -- Choose -- </option>
                     <option value = "Annual">Annual leave</option>
-                    <option value = "Medical"> Medical leave</option>
+                    <option value = "Medical"> Long- term medical leave</option>
+                    <option value = "Maternity"> Maternity leave</option>
+                    <option value = "Compassionate leave"> Compassionate leave</option>
                 </select><br><br>
             </div>
 
@@ -127,12 +127,12 @@ if (isset($conn)) {
             <button type="submit" class = "btn btn-primary">Submit Request</button>
             
             <!--Here is to redirect user back to main menu; user error handling purposes-->
-            <a href="<?php echo BASE_URL; ?>/index.php" class = "btn">Cancel</a>
+            <a href="index.php" class = "btn">Cancel</a>
         </form>
     </div>
     </main>
     <!--'/../includes/footer.php': find the directory path of the footer.php [or just include in the same directory], but why do you need it in a different directory, unless it is something not for access-->
-    <?php include __DIR__ . '/../includes/footer.php'; ?>
-    <script src="<?php echo BASE_URL; ?>/javascripts/script.js"></script> <!-- Remember to create 1) The javascripts/ directory, 2) Create the script.js and ask AI how is it related to the project? And if so can you modify it to the context of the project [but first, explain before you modify the script.js template]-->
+    <?php include __DIR__ . '/includes/footer.php'; ?>
+    <script src="javascripts/script.js"></script>
 </body>
 </html>
