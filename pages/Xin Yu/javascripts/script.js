@@ -7,8 +7,12 @@ function validateDates() {
     var start = document.getElementsByName("start_date")[0].value;
     var end = document.getElementsByName("end_date")[0].value;
 
+    // convert to date objects to objects with " date value" property
+    var startDate = new Date(start);
+    var endDate = new Date(end);
+
     // is it the end date before the start?
-    if (end < start) {
+    if (endDate.getTime() < startDate.getTime()) {
         // pop up warning
         alert("'End date'cannot be before 'Start date'");
 
