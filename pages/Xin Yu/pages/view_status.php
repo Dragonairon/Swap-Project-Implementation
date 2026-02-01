@@ -3,11 +3,6 @@
 // session_start(to act as a key to access user's logged in session data, specifically their "user id"for leave application and it autofills for them & "user role" whether they are 'normal user'/ 'admin')
 session_start();
 
-//this is for demo purposes only, please remove in production
-if (!isset($_SESSION['user_id'])) {
-    $_SESSION['user_id'] = 123456;
-}
-
 // If user is not logged in, redirect to login page
 if (!isset($_SESSION['user_id'])) {
     // I would have used "header("Location: " . BASE_URL . "/pages/login.php");", but i) Since I don't know group's inner workings of their codes, ii) I would just have to use die() to make sure users do not try to access any of the project pages without logging in first
@@ -15,16 +10,18 @@ if (!isset($_SESSION['user_id'])) {
 }
 
 // open db connection`
-require_once __DIR__ . '/../db_connect.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once PROJECT_ROOT . '/config/database.php';
+
 // include backend to hide SQL logic
-include_once __DIR__ . '/../backend_leaveRequest.php';
+include_once __DIR__ . '/backend_leaveRequest.php';
 
 $pageTitle = 'View Leave Status';
 
 // Data retrieval through the backend; done by getting the actual user id (that the user logged into) instead of hardcoding
 $logged_in_user = $_SESSION['user_id']; // get user_id from session data for the use of data retrival from the backend
 
-// create backend object and have it our hidden function
+// create backend object and have it our hidden function (PDO function)
 $backend = new leaveRequest();
 $result = $backend->getLeaveHistory($logged_in_user);
 ?>
