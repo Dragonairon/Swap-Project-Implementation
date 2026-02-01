@@ -3,17 +3,17 @@
 // credentials to be connected, with actual credentials put in later
 
 $host = $_SERVER['HTTP_HOST']; // host for project db
-$base = '/sample_project'; // your project folder name
+$base = 'Re-SWAP/Re-SWAP-project/'; // your project folder name
 define('BASE_URL', 'http://' . $host . $base); // defines base url for project
 
 // Prevents accidental changes with define()
-define('DB_HOST', 'localhost'); // localhost db
+define('DB_HOST', '127.0.0.1'); // localhost db
 define('DB_USER', 'root'); // username db
-define('DB_PASS', ''); // password db to be filled in
-define('DB_NAME', 'tpamc_database'); // database name for project db
+define('DB_PASS', '+=F1`nN_i$h_pP|=+'); // password db to be filled in
+define('DB_NAME', 'project_database'); // database name for project db
 
 // To follow the group's SQL file & syntax
-define('DB_NAME', 'tpamc_database');
+//define('DB_NAME', 'project_database');
 
 // new mysqli object for OOP connection & secret handshake to project db
 $conn = new mysqli(DB_HOST, DB_USER, DB_PASS, DB_NAME);
