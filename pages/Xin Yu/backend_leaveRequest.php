@@ -7,83 +7,62 @@ class leaveRequest {
     var $end_date;
     var $reason;
 
-    /* Not required any more
-    // Receives var objects and stores it
-    function setDatabase($db_conn) {
-        $this->db = $db_conn; // I don't think I was taught about this, I need to check about it
-    } */
-
     function getLeaveHistory($uid) {
-        // call or use $conn from db_connect.php
-        global $conn;
+        // call or use $pdo
+        global $pdo;
 
         // secure query with ? to prevent sql injection
         $sql = "SELECT leave_type, start_date, end_date, reason, status
-                FROM individual_leave_requests
-                WHERE user_id = ?"; // latest submission on top
+                FROM leave_requests
+                WHERE user_id = :uid
+                ORDER BY created_at DESC";
 
-        $stmt = $conn->prepare($sql);
-        $stmt->bind_param("i", $uid); 
-        $stmt->execute();
+        $stmt = $pdo->prepare($sql);
+        $stmt->execute([':uid' => (int)$uid]);
 
-        $result = $stmt->get_result();
-
-        return $result;
+        return $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
 
     function checkTime($uid) {
-        // call or use $conn from db_connect.php
-        global $conn;
+        // call or use $pdo from db_connect.php
+        global $pdo;
         
         // Prevents clicking too fast/ Send too many requests
-        // Changed id to user_id, just not sure whether it is a good idea because of "when user logged in, the system will automatically fill in that part for you immediately" scenario
-        $sql = "SELECT leave_id FROM individual_leave_requests
-                WHERE user_id = ?
-                AND submitted_at > NOW() - INTERVAL 30 SECOND";
+        // "when user logged in, the system will automatically fill in that part for you immediately" scenario
+        $sql = "SELECT id FROM leave_requests
+                WHERE user_id = :uid
+                AND created_at > NOW() - INTERVAL 30 SECOND";
 
-        // Is it here that needs another $sql statement?
 
         // prepare & bind_param to seperate sql command from user input
         // This block of code is to prevent sql injection
-        $stmt =  $conn->prepare($sql);
-        $stmt->bind_param("i", $uid); // "i" being int, I was being taught about it
-        $stmt->execute();
-        $result=$stmt->get_result();
-
-        return $result->num_rows > 0;
+        $stmt =  $pdo->prepare($sql);
+        $stmt->execute([':uid' => (int)$uid]);
+        return $stmt->rowCount() > 0;
 
     }
-
-        /*I don't think this is needed
-        // check for existing request
-        if ($result->num_rows > 0) {
-            return true;
-        } else {
-            return false;
-        }*/
 
 
     // Saves leave request into sql table
     function saveRequest() {
 
-        global $conn;
+        global $pdo;
         // hardcode "Pending" to prevent users who are applying leave to approve it on their own
-        $sql = "INSERT INTO individual_leave_requests(user_id, leave_type, start_date, end_date, reason, status)
-        VALUES (?, ?, ?, ?, ?, 'Pending')";
+        $sql = "INSERT INTO leave_requests(user_id, leave_type, start_date, end_date, reason, status, created_at)
+        VALUES (:user_id, :leave_type, :start_date, :end_date, :reason, 'Pending', NOW())";
 
         // Tell DB prep SQL statment
-        $stmt =  $conn->prepare($sql);
+        $stmt =  $pdo->prepare($sql);
 
-        // bind_params for each data to respective ?
-        $stmt->bind_param("issss", // datatypes: int, str*4
-        $this->user_id, // "$this->" to tell data it is already been sanitised at frontend
-        $this->leave_type,
-        $this->start_date,
-        $this->end_date,
-        $this->reason
-    );
-    // Execute command
-    return $stmt->execute();
+        // PDO execution, map "var"  variables to sql placeholders
+        return $stmt->execute([
+            ':user_id' => (int)$this->user_id,
+            ':leave_type' => $this->leave_type,
+            ':start_date' => $this->start_date,
+            ':end_date' => $this->end_date,
+            ':reason' => $this->reason
+        ]);
+        
     }
 }
 ?>
